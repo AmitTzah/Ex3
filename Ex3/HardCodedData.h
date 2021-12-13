@@ -13,19 +13,12 @@
 
 
 
-//school_thread related constants
+//project specific constants
 
 #define NUM_OF_VALS_TO_PASS_TO_THREAD 5
-#define NUMBER_OF_MAX_SIMULTANEOUSLY_WORKING_THREADS 10
 
-#define ENG_FILE_PATH "./Eng/"
-#define REAL_FILE_PATH "./Real/"
-#define HUMAN_FILE_PATH "./Human/"
-#define EVAL_FILE_PATH "./Eval/"
-#define RESULTS_FILE_PATH "./Results/"
-
-#define MAX_GRADE_CHARS 5 
-#define NUM_OF_GRADE_COMPONENTS 4
+#define OUTPUT_FILE_PATH "./Output.txt"
+#define SIZE_OF_PAGE  4096
 
 
 #endif

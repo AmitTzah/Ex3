@@ -24,6 +24,9 @@
     <ClCompile Include="file_IO.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="worker_row_thread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="create_and_handle_processes.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HardCodedData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="worker_row_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

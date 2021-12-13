@@ -142,11 +142,13 @@
     <ClCompile Include="create_and_handle_processes.c" />
     <ClCompile Include="file_IO.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="worker_row_thread.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="create_and_handle_processes.h" />
     <ClInclude Include="file_IO.h" />
     <ClInclude Include="HardCodedData.h" />
+    <ClInclude Include="worker_row_thread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
