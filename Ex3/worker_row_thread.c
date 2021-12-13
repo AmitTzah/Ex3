@@ -2,6 +2,8 @@
 
 
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 #include "worker_row_thread.h"
@@ -16,7 +18,7 @@ Page* create_and_init_page_table(size_t num_of_pages) {
 		exit(1);
 	}
 	else {
-		for (int i = 0; i < num_of_pages; i++)
+		for (size_t i = 0; i < num_of_pages; i++)
 		{
 			page_table[i].valid = false;
 

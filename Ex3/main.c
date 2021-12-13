@@ -48,7 +48,7 @@ main(int argc, char* argv[]) {
 	while (i<6){
 
 	//put inside protected area for clock writers
-	current_time = clock[i];
+		current_time = clock[i];
 	
 
 	/*
