@@ -8,6 +8,29 @@
 
 #include "worker_row_thread.h"
 
+
+
+DWORD WINAPI worker_row_thread(LPVOID lpParam) {
+	/*
+	readdingand writing to table needs to be protected.
+		1. the page is empty(valid bit is 0) -
+
+		the thread searches in rising index for an empty frame OR a frame in which the end_time has passed :
+
+	a.it can't find one: it gets into a waiting mode, all the threads that are in waiting mode are in a race condition to fill a frame that opens up.
+
+
+		b.it finds one : if it's a frame where end_time has passed, the Eviction line is printed to output, it updates_page table then placement is printed, then it finishes its work.
+
+
+		2.the page is filled -
+
+
+		a.the time is updated as need, then the thread finishes its work. (nothing is printed)
+		*/
+}
+
+
 Page* create_and_init_page_table(size_t num_of_pages) {
 
 	Page* page_table= calloc(num_of_pages, sizeof(Page));
@@ -29,31 +52,7 @@ Page* create_and_init_page_table(size_t num_of_pages) {
 
 
 
-/*
-thread_function(&current_time, parsed_input_row, page_table, output_file) {
 
-	readding and writing to table needs to be protected.
-	1. the page is empty (valid bit is 0)-
-
-		the thread searches in rising index for an empty frame OR a frame in which the end_time has passed :
-
-			a. it can't find one: it gets into a waiting mode, all the threads that are in waiting mode are in a race condition to fill a frame that opens up.
-
-
-			b. it finds one: if it's a frame where end_time has passed, the Eviction line is printed to output, it updates_page table then placement is printed, then it finishes its work.
-
-
-	2.the page is filled-
-
-
-		a. the time is updated as need, then the thread finishes its work. (nothing is printed)
-
-
-
-
-
-}
-*/
 
 /*
 waiting_mode(&current_time, thread, page_table, output_file) {

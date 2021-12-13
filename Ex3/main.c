@@ -20,7 +20,7 @@ Project: Ex3
 #include "create_and_handle_processes.h"
 #include "worker_row_thread.h"
 #include "HardCodedData.h"
-
+#include "file_IO.h"
 
 
 main(int argc, char* argv[]) {
@@ -35,32 +35,51 @@ main(int argc, char* argv[]) {
 
 
 	char* path_to_input_file = argv[3];
-	int i = 0;
+	size_t i = 0;
 	int clock[6] = { 0, 100, 900, 1000, 1500, 2000 };
 
 	int current_time;
 
+	size_t overall_num_of_threads = num_of_rows_in_a_file(path_to_input_file);
 
-	//paging_table = array of stucts.Each struct has(frame_num, valid bit, end_time);
-
+	HANDLE* array_of_thread_pointers = calloc(overall_num_of_threads, sizeof(HANDLE));
+	DWORD* p_thread_ids = calloc(overall_num_of_threads, sizeof(DWORD));
+	ROW_THREAD_params_t* p_parameters_struct=NULL;
 	
+	DWORD wait_code;
 
-	while (i<6){
+
+	ROW_THREAD_params_t* array_of_thread_parameters_structs = calloc(overall_num_of_threads, sizeof(ROW_THREAD_params_t));
+
+	if (array_of_thread_pointers == NULL || p_thread_ids == NULL || array_of_thread_parameters_structs == NULL) {
+		printf("Memory allocation to array of thread pointers failed in main!");
+		exit(1);
+	}
+
+
+	//initialize array_of_thread_parameters_structs 
+	for (size_t j = 0; j < overall_num_of_threads; j++)
+
+	{
+		array_of_thread_parameters_structs[j].page_table = page_table;
+	
+	}
+
+	while (i< overall_num_of_threads){
 
 	//put inside protected area for clock writers
 		current_time = clock[i];
 	
 
-	/*
+	
 	//this thread will either finish/or will get put into waiting mode, then it will update the clock
-	thread_at_current_time = create_thread(&current_time, input_row, page_table, output_file);
+	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
 
-	if (failed thread creation{
-	free_and_close_all_handles();
+	array_of_thread_pointers[i] = CreateThreadSimple(worker_row_thread, p_parameters_struct, &(p_thread_ids[i]));
 
-	}
+	
 
-	*/
+	
 
 	//the thread will singnal once finished or puts into waitining mode.
 	//If the thread needs to wait for a frame, this wiil signal so as to allow main to create more threads!
