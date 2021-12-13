@@ -4,30 +4,77 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <math.h>
 
 #include "worker_row_thread.h"
 
 
 
 DWORD WINAPI worker_row_thread(LPVOID lpParam) {
-	/*
-	readdingand writing to table needs to be protected.
-		1. the page is empty(valid bit is 0) -
 
-		the thread searches in rising index for an empty frame OR a frame in which the end_time has passed :
+	ROW_THREAD_params_t* p_params;
 
-	a.it can't find one: it gets into a waiting mode, all the threads that are in waiting mode are in a race condition to fill a frame that opens up.
+	/* Check if lpParam is NULL */
+	if (NULL == lpParam)
+	{
+		return ROW_THREAD__CODE_NULL_PTR;
+	}
+
+	//Convert (void *) to parameters type.
+	p_params = (ROW_THREAD_params_t*)lpParam;
+
+	int time = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 3];
+	int page_number = floor((p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 2]) / SIZE_OF_PAGE);
+	int time_of_use = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES-1];
+	int* current_time = p_params->current_time;
+	Page* page_table=p_params->page_table;
+
+	//page_table->valid should be inside readers
+	if (page_table->valid == false) {
+		int index_of_free_frame=0;
+		int index_of_page_where_end_time_has_passed=0;
+		//this function should be protected by reader
+		//iterate_over_page_table_and_search_for_avaliable_frame(page_table, &index_of_free_frame, &index_of_page_where_end_time_has_passed)
+
+		//check if free frame was not found
+		if (index_of_free_frame == -1 && index_of_page_where_end_time_has_passed == -1) {
+
+			//signal_to_main_that_goes_to_waiting_mode()
+			//waiting_mode()
+
+		}
+
+		else {
+
+			if (index_of_page_where_end_time_has_passed != -1) {
+
+				//print eviction line to output
+				// print placement line to output
+				//update page table
+			
+			}
+
+			else {
+
+			// print placement line to output
+			//update page table
+
+			}
+		}
 
 
-		b.it finds one : if it's a frame where end_time has passed, the Eviction line is printed to output, it updates_page table then placement is printed, then it finishes its work.
+	}
+
+	//this page already has a frame
+	else {
+		
+		//update end_time of table if needed.
+	}
 
 
-		2.the page is filled -
+	printf("Finished working on a row number %d ", p_params->row_index);
 
-
-		a.the time is updated as need, then the thread finishes its work. (nothing is printed)
-		*/
+	return ROW_THREAD__CODE_SUCCESS;
 }
 
 

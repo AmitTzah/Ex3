@@ -24,14 +24,15 @@ typedef struct Pages {
 //A type for thread return codes
 typedef enum
 {
-	SCHOOL_THREAD__CODE_SUCCESS,
-	SCHOOL_THREAD__CODE_NULL_PTR,
-} SCHOOL_THREAD__return_code_t;
+	ROW_THREAD__CODE_SUCCESS,
+	ROW_THREAD__CODE_NULL_PTR,
+} ROW_THREAD__return_code_t;
 
 
 // A type for thread parameters
 typedef struct
 {
+	size_t row_index;
 	int* current_time;
 	int parsed_row_array[NUM_OF_ROW_VARIABLES];
 	Page* page_table;

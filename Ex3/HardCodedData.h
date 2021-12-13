@@ -15,7 +15,7 @@
 
 //project specific constants
 
-#define NUM_OF_VALS_TO_PASS_TO_THREAD 5
+
 #define NUM_OF_ROW_VARIABLES 3
 #define OUTPUT_FILE_PATH "./Output.txt"
 #define SIZE_OF_PAGE  4096

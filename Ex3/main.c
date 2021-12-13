@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
 	char* path_to_input_file = argv[3];
 	size_t i = 0;
-	int clock[6] = { 0, 100, 900, 1000, 1500, 2000 };
+	int clock[6] = { 0, 100, 900, 1000, 1500, 2000};
 
 	int current_time;
 
@@ -75,6 +75,7 @@ int main(int argc, char* argv[]) {
 	//this thread will either finish/or will get put into waiting mode, then it will update the clock
 	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
 	p_parameters_struct->current_time = clock;
+	p_parameters_struct->row_index = i;
 	//p_parameters_struct->parsed_row_array=
 
 	array_of_thread_pointers[i] = CreateThreadSimple(worker_row_thread, p_parameters_struct, &(p_thread_ids[i]));
