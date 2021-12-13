@@ -23,7 +23,7 @@ Project: Ex3
 #include "file_IO.h"
 
 
-main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 
 	size_t num_of_virtual_bits_index = atoi(argv[1]) - 12;
 	size_t num_of_physycal_bits_index = atoi(argv[2]) - 12;
@@ -67,13 +67,15 @@ main(int argc, char* argv[]) {
 
 	while (i< overall_num_of_threads){
 
+
 	//put inside protected area for clock writers
 		current_time = clock[i];
 	
 
-	
 	//this thread will either finish/or will get put into waiting mode, then it will update the clock
 	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
+	p_parameters_struct->current_time = clock;
+	//p_parameters_struct->parsed_row_array=
 
 	array_of_thread_pointers[i] = CreateThreadSimple(worker_row_thread, p_parameters_struct, &(p_thread_ids[i]));
 
@@ -82,6 +84,7 @@ main(int argc, char* argv[]) {
 	
 
 	//the thread will singnal once finished or puts into waitining mode.
+	
 	//If the thread needs to wait for a frame, this wiil signal so as to allow main to create more threads!
 	//Signal_when_thread_is_put_to_waiting_mode_or_finishes()
 
@@ -89,11 +92,15 @@ main(int argc, char* argv[]) {
 
 
 	i++;
-}
+
+	}
 
 
-//print_left_over_evictions(page_table, output_file)
-//free_handles
+	//print_left_over_evictions(page_table, output_file)
+	//free_handles
+
+
+	return SUCCESS_CODE;
 
 }
 
