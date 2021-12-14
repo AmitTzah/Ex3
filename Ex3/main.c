@@ -35,6 +35,8 @@ int main(int argc, char* argv[]) {
 
 	char* path_to_input_file = argv[3];
 	size_t i = 0;
+
+	//need to write a function to get clock times 
 	int clock[6] = { 0, 100, 900, 1000, 1500, 2000};
 
 	int current_time;
@@ -76,19 +78,19 @@ int main(int argc, char* argv[]) {
 
 
 	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
-	p_parameters_struct->current_time = clock;
+	p_parameters_struct->current_time = &current_time;
 	p_parameters_struct->row_index = i;
+	p_parameters_struct->clock_readers_writers_parmas = &clock_readers_writers_parmas;
+	p_parameters_struct->page_table_readers_writers_parmas = &page_table_readers_writers_parmas;
+
 	//p_parameters_struct->parsed_row_array=
 
 	//this thread will either finish/or will get put into waiting mode, then it will update the clock
 	array_of_thread_pointers[i] = CreateThreadSimple(worker_row_thread, p_parameters_struct, &(p_thread_ids[i]));
 
 	//the thread will signal once finished or puts into waitining mode.
-	
-	//If the thread needs to wait for a frame, this wiil signal so as to allow main to create more threads!
-	
+	//If the thread needs to wait for a frame, this wiil signal, so as to allow main to create more threads!
 	wait_code = WaitForSingleObject(array_of_semaphore_objects[i], INFINITE);
-
 
 	if (wait_code == WAIT_FAILED)
 	{
@@ -101,7 +103,7 @@ int main(int argc, char* argv[]) {
 
 	}
 
-
+	//need to check if there are stiil threads in waiting mode.
 	//print_left_over_evictions(page_table, output_file)
 	//free_handles
 

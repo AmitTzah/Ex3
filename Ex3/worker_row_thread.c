@@ -12,7 +12,7 @@
 DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	ROW_THREAD_params_t* p_params;
-
+	
 	/* Check if lpParam is NULL */
 	if (NULL == lpParam)
 	{
@@ -23,14 +23,16 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 	p_params = (ROW_THREAD_params_t*)lpParam;
 
 	int time = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 3];
-	int page_number = floor((p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 2]) / SIZE_OF_PAGE);
+	int page_index = floor((p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 2]) / SIZE_OF_PAGE);
 	int time_of_use = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES-1];
 	int* current_time = p_params->current_time;
 	HANDLE semaphore = p_params->semaphore;
 	Page* page_table=p_params->page_table;
 
-	//page_table->valid should be inside readers
-	if (page_table->valid == false) {
+	Page page_read = read_page_table_protected(page_table, *(p_params->page_table_readers_writers_parmas), page_index);
+
+	
+	if (page_read.valid == false) {
 		int index_of_free_frame=0;
 		int index_of_page_where_end_time_has_passed=0;
 		//this function should be protected by reader
@@ -270,6 +272,66 @@ void write_to_current_time_protected(int updated_time, ReadersWritersParam clock
 	ReleaseSemaphore(clock_readers_writers_parmas.room_empty_semaphore, 1, NULL);
 
 	
+
+
+}
+
+
+
+Page read_page_table_protected(Page* page_table, ReadersWritersParam page_table_readers_writers_parmas, int index_of_page_to_access){
+	Page page_read;
+
+	//need to add function to check failure and exit correctly
+
+	WaitForSingleObject(page_table_readers_writers_parmas.turn_slide_mutex, INFINITE);
+	ReleaseMutex(page_table_readers_writers_parmas.turn_slide_mutex);
+
+	WaitForSingleObject(page_table_readers_writers_parmas.mutex, INFINITE);
+
+
+	page_table_readers_writers_parmas.readers += 1;
+	if (page_table_readers_writers_parmas.readers == 1) {
+		WaitForSingleObject(page_table_readers_writers_parmas.room_empty_semaphore, INFINITE);
+
+	}
+	ReleaseMutex(page_table_readers_writers_parmas.mutex);
+
+	//critical section for readers
+
+	page_read = page_table[index_of_page_to_access];
+
+	//end ofcritical section for readers
+
+	WaitForSingleObject(page_table_readers_writers_parmas.mutex, INFINITE);
+	page_table_readers_writers_parmas.readers -= 1;
+
+	if (page_table_readers_writers_parmas.readers == 0) {
+
+		ReleaseSemaphore(page_table_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+
+	}
+
+
+	ReleaseMutex(page_table_readers_writers_parmas.mutex);
+
+	return page_read;
+}
+
+void write_to_page_table_protected(Page* page_table, ReadersWritersParam page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write) {
+
+	WaitForSingleObject(page_table_readers_writers_parmas.turn_slide_mutex, INFINITE);
+	WaitForSingleObject(page_table_readers_writers_parmas.room_empty_semaphore, INFINITE);
+
+	//critical section for writers
+
+	page_table[index_of_page_to_access] = new_page_to_write;
+
+	//end ofcritical section for writers
+
+	ReleaseMutex(page_table_readers_writers_parmas.turn_slide_mutex);
+	ReleaseSemaphore(page_table_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+
+
 
 
 }
