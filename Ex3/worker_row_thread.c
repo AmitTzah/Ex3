@@ -9,7 +9,6 @@
 #include "worker_row_thread.h"
 
 
-
 DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	ROW_THREAD_params_t* p_params;
@@ -216,3 +215,61 @@ bool write_to_file(int num_of_real_pages, bool need_to_empty, int frame_num, int
 
 */
 
+int read_current_time_protected(ReadersWritersParam clock_readers_writers_parmas, int* current_time){
+	int current_t;
+	
+
+	//need to add function to check failure and exit correctly
+
+	WaitForSingleObject(clock_readers_writers_parmas.turn_slide_mutex, INFINITE);
+	ReleaseMutex(clock_readers_writers_parmas.turn_slide_mutex);
+
+	WaitForSingleObject(clock_readers_writers_parmas.mutex, INFINITE);
+
+
+	clock_readers_writers_parmas.readers += 1;
+	if (clock_readers_writers_parmas.readers == 1) {
+		WaitForSingleObject(clock_readers_writers_parmas.room_empty_semaphore, INFINITE);
+
+	}
+	ReleaseMutex(clock_readers_writers_parmas.mutex);
+
+	//critical section for readers
+	
+	current_t= *current_time;
+
+	//end ofcritical section for readers
+
+	WaitForSingleObject(clock_readers_writers_parmas.mutex, INFINITE);
+	clock_readers_writers_parmas.readers -= 1;
+
+	if (clock_readers_writers_parmas.readers == 0) {
+
+		ReleaseSemaphore(clock_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+
+	}
+
+
+	ReleaseMutex(clock_readers_writers_parmas.mutex);
+
+	return current_t;
+}
+
+void write_to_current_time_protected(int updated_time, ReadersWritersParam clock_readers_writers_parmas, int* current_time) {
+
+	WaitForSingleObject(clock_readers_writers_parmas.turn_slide_mutex, INFINITE);
+	WaitForSingleObject(clock_readers_writers_parmas.room_empty_semaphore, INFINITE);
+
+	//critical section for writers
+
+	*current_time = updated_time;
+
+	//end ofcritical section for writers
+	
+	ReleaseMutex(clock_readers_writers_parmas.turn_slide_mutex);
+	ReleaseSemaphore(clock_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+
+	
+
+
+}

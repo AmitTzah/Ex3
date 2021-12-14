@@ -8,8 +8,9 @@
 #include <stdbool.h>
 #include <Windows.h>
 
-#include "worker_row_thread.h"
+
 #include "HardCodedData.h"
+#include "create_and_handle_processes.h"
 
 
 typedef struct Pages {
@@ -47,6 +48,7 @@ typedef struct
 Page* create_and_init_page_table(size_t num_of_pages);
 
 DWORD WINAPI worker_row_thread(LPVOID lpParam);
+int read_current_time_protected(ReadersWritersParam clock_readers_writers_parmas, int* current_time);
 
-
+void write_to_current_time_protected(int updated_time, ReadersWritersParam clock_readers_writers_parmas, int* current_time);
 #endif

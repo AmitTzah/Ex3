@@ -71,9 +71,9 @@ int main(int argc, char* argv[]) {
 	while (i< overall_num_of_threads){
 
 
-	//put inside protected area for clock writers
-		current_time = clock[i];
-	
+	//put inside protected area for clock writers (Based on reader/writers solution from tirgul)
+	write_to_current_time_protected(clock[i],  clock_readers_writers_parmas, &current_time);
+
 
 	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
 	p_parameters_struct->current_time = clock;
