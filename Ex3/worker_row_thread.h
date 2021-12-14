@@ -34,28 +34,28 @@ typedef enum
 typedef struct
 {
 	size_t row_index;
-	int* current_time;
-	int parsed_row_array[NUM_OF_ROW_VARIABLES];
+	size_t* current_time;
+	int* parsed_row_array;
 	Page* page_table;
 	HANDLE semaphore;
 	ReadersWritersParam * page_table_readers_writers_parmas;
 	ReadersWritersParam * clock_readers_writers_parmas;
+	size_t size_of_page_table;
+	size_t  num_of_frames;
 
-	
 } ROW_THREAD_params_t;
-
-
-
 
 
 Page* create_and_init_page_table(size_t num_of_pages);
 
 DWORD WINAPI worker_row_thread(LPVOID lpParam);
 
-int read_current_time_protected(ReadersWritersParam clock_readers_writers_parmas, int* current_time);
-void write_to_current_time_protected(int updated_time, ReadersWritersParam clock_readers_writers_parmas, int* current_time);
+int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, int* current_time);
+void write_to_current_time_protected(int updated_time, ReadersWritersParam *clock_readers_writers_parmas, int* current_time);
 
-Page read_page_table_protected(Page* page_table, ReadersWritersParam page_table_readers_writers_parmas, int index_of_page_to_access);
-void write_to_page_table_protected(Page* page_table, ReadersWritersParam page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write);
+Page read_page_table_protected(Page* page_table, ReadersWritersParam *page_table_readers_writers_parmas, int index_of_page_to_access);
+void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write);
+
+void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t* p_params, int* index_of_free_frame, int* index_of_page_where_end_time_has_passed);
 
 #endif

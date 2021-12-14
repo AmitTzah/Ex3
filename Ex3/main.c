@@ -70,20 +70,25 @@ int main(int argc, char* argv[]) {
 	ReadersWritersParam clock_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
 	ReadersWritersParam page_table_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
 
+	int* parsed_row_array = calloc(NUM_OF_ROW_VARIABLES, sizeof(int));
 	while (i< overall_num_of_threads){
 
+		parse_row_to_array_of_ints(path_to_input_file, i, parsed_row_array, NUM_OF_ROW_VARIABLES);
 
 	//put inside protected area for clock writers (Based on reader/writers solution from tirgul)
-	write_to_current_time_protected(clock[i],  clock_readers_writers_parmas, &current_time);
+	write_to_current_time_protected(clock[i],  &clock_readers_writers_parmas, &current_time);
 
-
+	//pass thread parameters
 	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
 	p_parameters_struct->current_time = &current_time;
 	p_parameters_struct->row_index = i;
 	p_parameters_struct->clock_readers_writers_parmas = &clock_readers_writers_parmas;
 	p_parameters_struct->page_table_readers_writers_parmas = &page_table_readers_writers_parmas;
-
-	//p_parameters_struct->parsed_row_array=
+	p_parameters_struct->size_of_page_table = num_of_pages;
+	p_parameters_struct->num_of_frames = num_of_frames;
+	p_parameters_struct->parsed_row_array = parsed_row_array;
+	p_parameters_struct->page_table = page_table;
+	p_parameters_struct->semaphore = array_of_semaphore_objects[i];
 
 	//this thread will either finish/or will get put into waiting mode, then it will update the clock
 	array_of_thread_pointers[i] = CreateThreadSimple(worker_row_thread, p_parameters_struct, &(p_thread_ids[i]));
@@ -106,6 +111,7 @@ int main(int argc, char* argv[]) {
 	//need to check if there are stiil threads in waiting mode.
 	//print_left_over_evictions(page_table, output_file)
 	//free_handles
+	//free arrays
 
 
 	return SUCCESS_CODE;

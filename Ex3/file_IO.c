@@ -2,13 +2,14 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "file_IO.h"
 
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <Windows.h>
 
+#include "file_IO.h"
+#include "HardCodedData.h"
 
 //based on the example from :
 /*
@@ -228,5 +229,51 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 		return count;
 	}
 
+
+
+/// <summary>
+/// 
+/// </given a path to file where each row is made of integer numbers seperated by spaces, this function parsed the int values of a wanted row into the given array >
+/// <param name="pathToFile"></path to file>
+/// <param name="index_of_wanted_line"></index of the row to parse>
+/// <param name="arr_to_hold_parsed_values"></pointer to the array that will hold the parsed variables>
+/// <param name="arr_size"></size of that array, or the number of parsed values in a row.>
+	void parse_row_to_array_of_ints(char* pathToFile, int index_of_wanted_line, int* arr_to_hold_parsed_values, int arr_size)
+	{
+		int file_offset = 0;
+		char* line_buffer = (char*)malloc(sizeof(char) * MAX_LENGTH_OF_ROW);
+		int row_counter = 0;
+		file_offset = 0;
+
+		if (line_buffer == NULL)
+		{
+			printf("error alocating memory in row_to_int ");
+			exit(1);
+		}
+		while (TRUE)
+		{
+
+			file_offset += WinReadFromFile(pathToFile, line_buffer, MAX_LENGTH_OF_ROW, file_offset);
+			char* temp_char_1 = strtok(line_buffer, "\r\n");
+			for (int j = 1; j <= index_of_wanted_line; j++)
+			{
+				temp_char_1 = strtok(line_buffer, "\r\n");
+			}
+			// we are at wanted row
+			{
+				char* temp_char = strtok(temp_char_1, " ");
+				*arr_to_hold_parsed_values = atoi(temp_char);
+				arr_to_hold_parsed_values++;
+
+				for (int i = 1; i < arr_size; i++) {
+					temp_char = strtok(NULL, " ");
+					*arr_to_hold_parsed_values = atoi(temp_char);
+					arr_to_hold_parsed_values++;
+				}
+				break;
+			}
+		}
+
+	}
 
 

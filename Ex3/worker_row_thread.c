@@ -29,14 +29,14 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 	HANDLE semaphore = p_params->semaphore;
 	Page* page_table=p_params->page_table;
 
-	Page page_read = read_page_table_protected(page_table, *(p_params->page_table_readers_writers_parmas), page_index);
+	Page page_read = read_page_table_protected(page_table, (p_params->page_table_readers_writers_parmas), page_index);
 
 	
 	if (page_read.valid == false) {
 		int index_of_free_frame=0;
 		int index_of_page_where_end_time_has_passed=0;
-		//this function should be protected by reader
-		//iterate_over_page_table_and_search_for_avaliable_frame(page_table, &index_of_free_frame, &index_of_page_where_end_time_has_passed)
+
+		//int frame=iterate_over_page_table_and_search_for_avaliable_frame(p_params, &index_of_free_frame, &index_of_page_where_end_time_has_passed);
 
 		//check if free frame was not found
 		if (index_of_free_frame == -1 && index_of_page_where_end_time_has_passed == -1) {
@@ -50,18 +50,19 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 		else {
 
+			//found a frame that can be evicted then used
 			if (index_of_page_where_end_time_has_passed != -1) {
 
-				//print eviction line to output
-				// print placement line to output
-				//update page table
+				//print_eviction_line_to_output(index_of_page_where_end_time_has_passed, page table)
+				// print placement line to output(frame, p_params)
+				//update page table(p_params)
 			
 			}
 
 			else {
 
-			// print placement line to output
-			//update page table
+			// print placement line to output(frame, p_params)
+			//update page table(p_params)
 
 			}
 		}
@@ -72,7 +73,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 	//this page already has a frame
 	else {
 		
-		//update end_time of table if needed.
+		//update end time of table if needed.
 	}
 
 
@@ -125,116 +126,24 @@ waiting_mode(&current_time, thread, page_table, output_file) {
 
 
 
-/*
-bool write_to_file(int num_of_real_pages, bool need_to_empty, int frame_num, int i)
-{
-	int j;
-	LONG previous_count;
-	bool release_res;
-	char* Line_To_Write = (char*)malloc(sizeof(char) * Max_Size_of_Line);
-	char temp_str[Max_Size_of_Line];
-	if (Line_To_Write == NULL)
-	{
-		printf("error alocating memory for the output file write string");
-		exit(1);
-
-	}
-	int things_to_write[2];// enter the waned ints to here
-	int num_of_bits_to_write = 0;// saves the number of bits yo write to the output file
-	bool foud_page_to_empty = FALSE;
-
-	if (need_to_empty == TRUE)
-	{
-		for (j = 0; j < num_of_real_pages; j++)
-		{
-			if (*clock > real_pages[j].End_Time && real_pages[j].valid == TRUE)// meaning the current page finished its time
-			{// we need to remove it from the table and updte the output file
-				vir_pages[real_pages[j].Frame_num].valid = FALSE;
-				real_pages[j].valid = FALSE;
-				release_res = ReleaseSemaphore(
-					vacent_pages_semaphore,
-					1, 		// Signal that exactly one cell was emptied
-					&previous_count);
-				if (release_res == FALSE) {
-					const int error = GetLastError();
-					printf("Error when realisng semaphore  mutex error num: %d\n", error);
-					exit(1);
-				}
-
-				//printf("*semaphore_count =: %d\n", *semaphore_count);
-				// now we need to write it to the output file:
-				things_to_write[0] = j;
-				things_to_write[1] = real_pages[j].Frame_num;
-				foud_page_to_empty = TRUE;
-
-			}
-		}
-	}
-	else
-	{
-		things_to_write[0] = i;
-		things_to_write[1] = frame_num;
-
-
-	}
-	if (foud_page_to_empty == TRUE || need_to_empty == FALSE)
-	{
-
-		num_of_bits_to_write = get_num_of_digits_in_an_int_number(*clock);
-		sprintf(Line_To_Write, "%d", *clock);
-		strcat(Line_To_Write, " ");
-
-		sprintf(temp_str, "%d", things_to_write[1]);
-		num_of_bits_to_write += get_num_of_digits_in_an_int_number(things_to_write[0]);
-
-
-		strcat(Line_To_Write, temp_str);
-		strcat(Line_To_Write, " ");
-		sprintf(temp_str, "%d", things_to_write[0]);
-		num_of_bits_to_write += get_num_of_digits_in_an_int_number(things_to_write[1]);
-		strcat(Line_To_Write, temp_str);
-		strcat(Line_To_Write, " ");
-		if (need_to_empty == TRUE)
-		{
-			strcat(Line_To_Write, "E");
-		}
-		else
-		{
-			strcat(Line_To_Write, "P");
-		}
-
-		num_of_bits_to_write += 4;// added the spaces and char to the sum
-		printf("wrote to output: %s\n", Line_To_Write);
-		WinWriteToFile(Output_file_path, Line_To_Write, num_of_bits_to_write, *output_file_offset);
-		*output_file_offset += num_of_bits_to_write;
-		// start new line
-		WinWriteToFile(Output_file_path, "\r\n", 4, *output_file_offset);
-		*output_file_offset += 2;
-		//return TRUE;
-	}
-	return TRUE;
-}
-
-*/
-
-int read_current_time_protected(ReadersWritersParam clock_readers_writers_parmas, int* current_time){
+int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, int* current_time){
 	int current_t;
 	
 
 	//need to add function to check failure and exit correctly
 
-	WaitForSingleObject(clock_readers_writers_parmas.turn_slide_mutex, INFINITE);
-	ReleaseMutex(clock_readers_writers_parmas.turn_slide_mutex);
+	WaitForSingleObject(clock_readers_writers_parmas->turn_slide_mutex, INFINITE);
+	ReleaseMutex(clock_readers_writers_parmas->turn_slide_mutex);
 
-	WaitForSingleObject(clock_readers_writers_parmas.mutex, INFINITE);
+	WaitForSingleObject(clock_readers_writers_parmas->mutex, INFINITE);
 
 
-	clock_readers_writers_parmas.readers += 1;
-	if (clock_readers_writers_parmas.readers == 1) {
-		WaitForSingleObject(clock_readers_writers_parmas.room_empty_semaphore, INFINITE);
+	clock_readers_writers_parmas->readers += 1;
+	if (clock_readers_writers_parmas->readers == 1) {
+		WaitForSingleObject(clock_readers_writers_parmas->room_empty_semaphore, INFINITE);
 
 	}
-	ReleaseMutex(clock_readers_writers_parmas.mutex);
+	ReleaseMutex(clock_readers_writers_parmas->mutex);
 
 	//critical section for readers
 	
@@ -242,25 +151,25 @@ int read_current_time_protected(ReadersWritersParam clock_readers_writers_parmas
 
 	//end ofcritical section for readers
 
-	WaitForSingleObject(clock_readers_writers_parmas.mutex, INFINITE);
-	clock_readers_writers_parmas.readers -= 1;
+	WaitForSingleObject(clock_readers_writers_parmas->mutex, INFINITE);
+	clock_readers_writers_parmas->readers -= 1;
 
-	if (clock_readers_writers_parmas.readers == 0) {
+	if (clock_readers_writers_parmas->readers == 0) {
 
-		ReleaseSemaphore(clock_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+		ReleaseSemaphore(clock_readers_writers_parmas->room_empty_semaphore, 1, NULL);
 
 	}
 
 
-	ReleaseMutex(clock_readers_writers_parmas.mutex);
+	ReleaseMutex(clock_readers_writers_parmas->mutex);
 
 	return current_t;
 }
 
-void write_to_current_time_protected(int updated_time, ReadersWritersParam clock_readers_writers_parmas, int* current_time) {
+void write_to_current_time_protected(int updated_time, ReadersWritersParam* clock_readers_writers_parmas, int* current_time) {
 
-	WaitForSingleObject(clock_readers_writers_parmas.turn_slide_mutex, INFINITE);
-	WaitForSingleObject(clock_readers_writers_parmas.room_empty_semaphore, INFINITE);
+	WaitForSingleObject(clock_readers_writers_parmas->turn_slide_mutex, INFINITE);
+	WaitForSingleObject(clock_readers_writers_parmas->room_empty_semaphore, INFINITE);
 
 	//critical section for writers
 
@@ -268,8 +177,8 @@ void write_to_current_time_protected(int updated_time, ReadersWritersParam clock
 
 	//end ofcritical section for writers
 	
-	ReleaseMutex(clock_readers_writers_parmas.turn_slide_mutex);
-	ReleaseSemaphore(clock_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+	ReleaseMutex(clock_readers_writers_parmas->turn_slide_mutex);
+	ReleaseSemaphore(clock_readers_writers_parmas->room_empty_semaphore, 1, NULL);
 
 	
 
@@ -278,23 +187,23 @@ void write_to_current_time_protected(int updated_time, ReadersWritersParam clock
 
 
 
-Page read_page_table_protected(Page* page_table, ReadersWritersParam page_table_readers_writers_parmas, int index_of_page_to_access){
+Page read_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access){
 	Page page_read;
 
 	//need to add function to check failure and exit correctly
 
-	WaitForSingleObject(page_table_readers_writers_parmas.turn_slide_mutex, INFINITE);
-	ReleaseMutex(page_table_readers_writers_parmas.turn_slide_mutex);
+	WaitForSingleObject(page_table_readers_writers_parmas->turn_slide_mutex, INFINITE);
+	ReleaseMutex(page_table_readers_writers_parmas->turn_slide_mutex);
 
-	WaitForSingleObject(page_table_readers_writers_parmas.mutex, INFINITE);
+	WaitForSingleObject(page_table_readers_writers_parmas->mutex, INFINITE);
 
 
-	page_table_readers_writers_parmas.readers += 1;
-	if (page_table_readers_writers_parmas.readers == 1) {
-		WaitForSingleObject(page_table_readers_writers_parmas.room_empty_semaphore, INFINITE);
+	page_table_readers_writers_parmas->readers += 1;
+	if (page_table_readers_writers_parmas->readers == 1) {
+		WaitForSingleObject(page_table_readers_writers_parmas->room_empty_semaphore, INFINITE);
 
 	}
-	ReleaseMutex(page_table_readers_writers_parmas.mutex);
+	ReleaseMutex(page_table_readers_writers_parmas->mutex);
 
 	//critical section for readers
 
@@ -302,25 +211,25 @@ Page read_page_table_protected(Page* page_table, ReadersWritersParam page_table_
 
 	//end ofcritical section for readers
 
-	WaitForSingleObject(page_table_readers_writers_parmas.mutex, INFINITE);
-	page_table_readers_writers_parmas.readers -= 1;
+	WaitForSingleObject(page_table_readers_writers_parmas->mutex, INFINITE);
+	page_table_readers_writers_parmas->readers -= 1;
 
-	if (page_table_readers_writers_parmas.readers == 0) {
+	if (page_table_readers_writers_parmas->readers == 0) {
 
-		ReleaseSemaphore(page_table_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+		ReleaseSemaphore(page_table_readers_writers_parmas->room_empty_semaphore, 1, NULL);
 
 	}
 
 
-	ReleaseMutex(page_table_readers_writers_parmas.mutex);
+	ReleaseMutex(page_table_readers_writers_parmas->mutex);
 
 	return page_read;
 }
 
-void write_to_page_table_protected(Page* page_table, ReadersWritersParam page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write) {
+void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write) {
 
-	WaitForSingleObject(page_table_readers_writers_parmas.turn_slide_mutex, INFINITE);
-	WaitForSingleObject(page_table_readers_writers_parmas.room_empty_semaphore, INFINITE);
+	WaitForSingleObject(page_table_readers_writers_parmas->turn_slide_mutex, INFINITE);
+	WaitForSingleObject(page_table_readers_writers_parmas->room_empty_semaphore, INFINITE);
 
 	//critical section for writers
 
@@ -328,10 +237,37 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam page_ta
 
 	//end ofcritical section for writers
 
-	ReleaseMutex(page_table_readers_writers_parmas.turn_slide_mutex);
-	ReleaseSemaphore(page_table_readers_writers_parmas.room_empty_semaphore, 1, NULL);
+	ReleaseMutex(page_table_readers_writers_parmas->turn_slide_mutex);
+	ReleaseSemaphore(page_table_readers_writers_parmas->room_empty_semaphore, 1, NULL);
 
 
 
 
 }
+
+
+void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t* p_params, int * index_of_free_frame, int * index_of_page_where_end_time_has_passed) {
+
+	Page page_read;
+	int current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
+	for (int i = 0; i < current_time; i++) {
+
+		page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, i);
+		if (page_read.end_time <= *(p_params->current_time)) {
+
+			*index_of_page_where_end_time_has_passed = i;
+		}
+
+		else { 
+
+			//index_of_free_frame=check_if_frame_is_not_in_any_pages_and_return_its_index(page_table)
+		}
+
+	}
+
+
+	
+}
+
+
+
