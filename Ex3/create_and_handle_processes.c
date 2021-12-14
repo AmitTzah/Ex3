@@ -232,4 +232,34 @@ void close_array_of_thread_handles(HANDLE* array_of_thread_pointers, int size_of
 
 }
 
+HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_objects, size_t initial_semaphore_count, size_t maximum_count) {
+	HANDLE* semaphore_array;
+	HANDLE semaphore_object;
+	semaphore_array = calloc(overall_num_of_semaphore_objects, sizeof(HANDLE));
+
+	for (size_t i = 0; i < overall_num_of_semaphore_objects; i++) {
+
+		 semaphore_object = CreateSemaphore(
+			NULL,	/* Default security attributes */
+			 initial_semaphore_count,		/* Initial Count - all slots are empty */
+			 maximum_count,		/* Maximum Count */
+			NULL);  /* un-named */
+
+		if (semaphore_object == NULL || semaphore_array==NULL)
+		{
+			//call cleanup_and_exit_function
+			exit(1);
+		}
+
+		else {
+
+			semaphore_array[i] = semaphore_object;
+		}
+
+	}
+
+	return  semaphore_array;
+}
+
+
 

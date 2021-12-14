@@ -36,6 +36,7 @@ typedef struct
 	int* current_time;
 	int parsed_row_array[NUM_OF_ROW_VARIABLES];
 	Page* page_table;
+	HANDLE semaphore;
 	
 } ROW_THREAD_params_t;
 

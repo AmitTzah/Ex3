@@ -12,4 +12,6 @@ void close_array_of_thread_handles(HANDLE* array_of_thread_pointers, int size_of
 
 char* concatenate_command_line_arguments_into_a_string(int num_of_arguments, char* arguments_array[]);
 
+HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_objects, size_t initial_semaphore_count, size_t maximum_count);
+
 #endif

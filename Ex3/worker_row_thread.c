@@ -27,6 +27,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 	int page_number = floor((p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 2]) / SIZE_OF_PAGE);
 	int time_of_use = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES-1];
 	int* current_time = p_params->current_time;
+	HANDLE semaphore = p_params->semaphore;
 	Page* page_table=p_params->page_table;
 
 	//page_table->valid should be inside readers
@@ -39,7 +40,9 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 		//check if free frame was not found
 		if (index_of_free_frame == -1 && index_of_page_where_end_time_has_passed == -1) {
 
-			//signal_to_main_that_goes_to_waiting_mode()
+			//signal to_main that goes to waiting mode, so that main could continue.
+			ReleaseSemaphore(semaphore, 1, NULL);
+
 			//waiting_mode()
 
 		}
@@ -74,6 +77,8 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	printf("Finished working on a row number %d ", p_params->row_index);
 
+	//signaled to_main that finished work, so that main could continue.
+	ReleaseSemaphore(semaphore, 1, NULL);
 	return ROW_THREAD__CODE_SUCCESS;
 }
 
