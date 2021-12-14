@@ -14,5 +14,7 @@ int num_of_rows_in_a_file(char* pathToFile);
 
 int return_numbers_of_chars_in_file(char * pathToFile);
 
+void row_to_int(char* pathToFile, int wanted_line, int* arr, int arr_size);
+
 #endif
 

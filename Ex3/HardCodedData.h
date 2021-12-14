@@ -19,6 +19,7 @@
 #define NUM_OF_ROW_VARIABLES 3
 #define OUTPUT_FILE_PATH "./Output.txt"
 #define SIZE_OF_PAGE  4096
+#define Max_Size_of_Line 120
 
 
 #endif

@@ -3,6 +3,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "file_IO.h"
+#include "HardCodedData.h"
 
 #include <stdio.h>
 #include <stddef.h>
@@ -227,6 +228,51 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 		fclose(fp);
 		return count;
 	}
+
+	/*
+	 THe Following Func Recives input file name and int array and row num and an int* array and array size
+	 and put the int values of the wanted Line inside the array 
+	*/
+	void row_to_int(char* pathToFile, int wanted_line, int* arr, int arr_size)
+	{
+		//int* file_offset = (int*)malloc(sizeof(int));
+		int file_offset = 0;
+		char* line_buffer = (char*)malloc(sizeof(char) * Max_Size_of_Line);
+		int row_counter = 0;
+		file_offset = 0;
+
+		if (line_buffer == NULL)// || file_offset)
+		{
+			printf("error alocating memory in row_to_int ");
+			exit(1);
+		}
+		while (TRUE)
+		{
+			
+			file_offset += WinReadFromFile(pathToFile, line_buffer, Max_Size_of_Line, file_offset);
+			char* temp_char_1 = strtok(line_buffer, "\r\n");
+			for (int j = 1; j <= wanted_line; j++)
+			{
+				temp_char_1 = strtok(line_buffer, "\r\n");
+			}
+			// we are at wanted row
+			{
+				char* temp_char = strtok(temp_char_1, " ");
+				arr = atoi(temp_char);
+				arr++;
+
+				for (int i = 1; i < arr_size; i++) {
+					temp_char = strtok(NULL, " ");
+					arr = atoi(temp_char);
+					arr++;
+				}
+				break;
+			}
+		}
+
+	}
+
+		
 
 
 

@@ -25,8 +25,8 @@ Project: Ex3
 
 int main(int argc, char* argv[]) {
 
-	size_t num_of_virtual_bits_index = atoi(argv[1]) - 12;
-	size_t num_of_physycal_bits_index = atoi(argv[2]) - 12;
+	size_t num_of_virtual_bits_index = atoi(argv[2]) - 12;
+	size_t num_of_physycal_bits_index = atoi(argv[3]) - 12;
 
 	size_t num_of_frames = pow(2.0, num_of_physycal_bits_index);
 	size_t num_of_pages = pow(2.0, num_of_virtual_bits_index);
@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 	Page* page_table = create_and_init_page_table(num_of_pages);
 
 
-	char* path_to_input_file = argv[3];
+	char* path_to_input_file = argv[4];
 	size_t i = 0;
 	int clock[6] = { 0, 100, 900, 1000, 1500, 2000};
 
@@ -50,6 +50,13 @@ int main(int argc, char* argv[]) {
 
 
 	ROW_THREAD_params_t* array_of_thread_parameters_structs = calloc(overall_num_of_threads, sizeof(ROW_THREAD_params_t));
+
+
+
+	// just for test 
+	int*  test_code = (int*)calloc((3), (sizeof(int))); // evry thtead has a start time and an end time
+
+	row_to_int(path_to_input_file, 0, test_code, 3);
 
 	if (array_of_thread_pointers == NULL || p_thread_ids == NULL || array_of_thread_parameters_structs == NULL) {
 		printf("Memory allocation to array of thread pointers failed in main!");
