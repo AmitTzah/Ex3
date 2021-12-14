@@ -73,10 +73,15 @@ int main(int argc, char* argv[]) {
 	int* parsed_row_array = calloc(NUM_OF_ROW_VARIABLES, sizeof(int));
 	while (i< overall_num_of_threads){
 
-		parse_row_to_array_of_ints(path_to_input_file, i, parsed_row_array, NUM_OF_ROW_VARIABLES);
+	parse_row_to_array_of_ints(path_to_input_file, i, parsed_row_array, NUM_OF_ROW_VARIABLES);
 
 	//put inside protected area for clock writers (Based on reader/writers solution from tirgul)
+	//update current_time to next time.
 	write_to_current_time_protected(clock[i],  &clock_readers_writers_parmas, &current_time);
+
+
+	//this Sleep() function allows the threads which are currently waiting for a frame, to check if frames were freed up in the gap bettwen the current and previous time.
+	Sleep(THREAD_TIMEOUT_IN_MS);
 
 	//pass thread parameters
 	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
@@ -105,6 +110,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	i++;
+
 
 	}
 

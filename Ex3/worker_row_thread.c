@@ -256,6 +256,7 @@ void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t*
 		if (page_read.end_time <= *(p_params->current_time)) {
 
 			*index_of_page_where_end_time_has_passed = i;
+			return;
 		}
 
 		else { 
