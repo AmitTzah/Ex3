@@ -16,6 +16,12 @@ int return_numbers_of_chars_in_file(char * pathToFile);
 
 void parse_row_to_array_of_ints(char* pathToFile, int index_of_wanted_line, int* arr_to_hold_parsed_values, int arr_size);
 
+int Write_to_output(char* pathToFile, int virtual_page_num, int physycal_page_num, int time, BOOL E, int write_from_offset);
+
+int get_num_of_digits_in_an_int_number(int num);
+
+int Write_to_output(char* pathToFile, int virtual_page_num, int physycal_page_num, int time, BOOL need_to_empty, int write_from_offset);
+
 
 #endif
 

@@ -275,5 +275,76 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 		}
 
 	}
+	/*
+	* the following func recives file location file offset and the aproprate vars 
+	* and write them in the wanted order on thw output file
+	* the func returns the new offset needed from the file
+	*/
 
+	int Write_to_output(char* pathToFile, int virtual_page_num, int physycal_page_num, int time, BOOL need_to_empty, int write_from_offset)
+	{
+		char* Line_To_Write = (char*)malloc(sizeof(char) * MAX_LENGTH_OF_ROW);
+		char temp_str[MAX_LENGTH_OF_ROW];
+		if (Line_To_Write == NULL)
+		{
+			printf("error alocating memory for the output file write string");
+			exit(1);
+
+		}
+		int num_of_bits_to_write = 0;
+		//count the number of chars in each int var
+		num_of_bits_to_write += get_num_of_digits_in_an_int_number(virtual_page_num);
+		num_of_bits_to_write += get_num_of_digits_in_an_int_number(physycal_page_num);
+		num_of_bits_to_write += get_num_of_digits_in_an_int_number(time);
+		// add an extra one for the E/P
+		num_of_bits_to_write += 1;
+		sprintf(Line_To_Write, "%d", time);
+		strcat(Line_To_Write, " ");
+
+		sprintf(temp_str, "%d", virtual_page_num);
+		
+
+
+		strcat(Line_To_Write, temp_str);
+		strcat(Line_To_Write, " ");
+		sprintf(temp_str, "%d", physycal_page_num);
+		strcat(Line_To_Write, temp_str);
+		strcat(Line_To_Write, " ");
+		if (need_to_empty == TRUE)
+		{
+			strcat(Line_To_Write, "E");
+		}
+		else
+		{
+			strcat(Line_To_Write, "P");
+		}
+
+		num_of_bits_to_write += 3;// added the spaces and char to the sum
+		printf("wrote to output: %s\n", Line_To_Write);
+		write_from_offset += WinWriteToFile(pathToFile, Line_To_Write, num_of_bits_to_write, write_from_offset);
+		// start new line
+		write_from_offset+= WinWriteToFile(pathToFile, "\r\n", 4, write_from_offset);
+		
+
+		return write_from_offset;
+	}
+
+
+	/// <summary>
+/// 
+/// </Returns number of digits in an integer number>
+/// <param name="num"></num>
+/// <returns></number of digit>
+	int get_num_of_digits_in_an_int_number(int num)
+	{
+		if (num == 0)
+			return 1;
+		int count = 0;
+		while (num != 0)
+		{
+			count++;
+			num = num / 10;
+		}
+		return count;
+	}
 

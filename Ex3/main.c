@@ -25,6 +25,9 @@ Project: Ex3
 
 int main(int argc, char* argv[]) {
 
+	// ###### DELETE THIS ########
+	int kupi = Write_to_output(OUTPUT_FILE_PATH, 0, 0, 0, FALSE, 0);
+
 	size_t num_of_virtual_bits_index = atoi(argv[1]) - 12;
 	size_t num_of_physycal_bits_index = atoi(argv[2]) - 12;
 
