@@ -9,7 +9,7 @@
 #include <windows.h>
 
 #include "HardCodedData.h"
-
+#include "create_and_handle_processes.h"
 
 
 //private function, based on example from moodle.
@@ -262,4 +262,43 @@ HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_
 }
 
 
+ReadersWritersParam create_and_init_readers_writers_param_struct(int max_num_of_readers) {
+
+	ReadersWritersParam params;
+
+	params.readers = 0;
+	params.mutex = CreateMutex(
+		NULL,   /* default security attributes */
+		FALSE,	/* don't lock mutex immediately */
+		NULL);  /* un-named */
+	if (params.mutex == NULL)
+	{
+		//call clean_up_function
+	}
+	params.room_empty_semaphore = CreateSemaphore(
+		NULL,	/* Default security attributes */
+		1,		/* Initial Count - all slots are empty */
+		max_num_of_readers,		/* Maximum Count */
+		NULL);  /* un-named */
+
+	if (params.room_empty_semaphore == NULL)
+	{
+		//call cleanup_and_exit_function
+	}
+
+	params.turn_slide_mutex = CreateMutex(
+		NULL,   /* default security attributes */
+		FALSE,	/* don't lock mutex immediately */
+		NULL);  /* un-named */
+	if (params.turn_slide_mutex == NULL)
+	{
+		//call clean_up_function
+
+
+	}
+
+
+	return params;
+
+}
 

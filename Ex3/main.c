@@ -64,6 +64,10 @@ int main(int argc, char* argv[]) {
 
 	HANDLE* array_of_semaphore_objects = create_and_init_array_semaphore_objects(overall_num_of_threads,0,2);
 
+	//the following are parameters used for the reader-writer solution presented in tirgul7
+	ReadersWritersParam clock_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
+	ReadersWritersParam page_table_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
+
 	while (i< overall_num_of_threads){
 
 
@@ -82,16 +86,16 @@ int main(int argc, char* argv[]) {
 	//the thread will signal once finished or puts into waitining mode.
 	
 	//If the thread needs to wait for a frame, this wiil signal so as to allow main to create more threads!
-	//Signal_when_thread_is_put_to_waiting_mode_or_finishes()
-
+	
 	wait_code = WaitForSingleObject(array_of_semaphore_objects[i], INFINITE);
 
-	if (wait_code == WAIT_OBJECT_0)
-	{
-		printf("Return value of WaitForSingleObject is %d\n", wait_code);
-		//ReportErrorAndEndProgram();
-	}
 
+	if (wait_code == WAIT_FAILED)
+	{
+		const int error = GetLastError();
+		printf("Error when waiting for multiple threads, error code: %d\n", error);
+		//add exit_function
+	}
 
 	i++;
 
@@ -106,17 +110,3 @@ int main(int argc, char* argv[]) {
 
 }
 
-
-
-/*
-For every critical section where both readersand writers can access the same resource(be it page_table or clock) we need to employ the writer - reader solution.
-For that we need :
-
-the following globals :
-int readers = 0;
-Mutex = mutex
-roomEmpty.
-
-(for every critical section, we need another set of those three.)
-
-*/
