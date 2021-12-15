@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
 
 	if (array_of_thread_pointers == NULL || p_thread_ids == NULL || array_of_thread_parameters_structs == NULL) {
 		printf("Memory allocation to array of thread pointers failed in main!");
-		exit(1);
+		 
 	}
 
 	//initialize array_of_thread_parameters_structs 
