@@ -257,7 +257,7 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 			char* temp_char_1 = strtok(line_buffer, "\r\n");
 			for (int j = 1; j <= index_of_wanted_line; j++)
 			{
-				temp_char_1 = strtok(line_buffer, "\r\n");
+				temp_char_1 = strtok(NULL, "\r\n");
 			}
 			// we are at wanted row
 			{
