@@ -86,6 +86,14 @@ void waiting_mode(size_t time_of_use, int page_index, ROW_THREAD_params_t* p_par
 				new_page_to_write.frame_num = page_read.frame_num;
 
 				write_to_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, page_index, new_page_to_write);
+
+				Page change_valid_to_false_in_old_page;
+				change_valid_to_false_in_old_page.end_time = time_of_use + page_read.end_time;
+				change_valid_to_false_in_old_page.valid = false;
+				change_valid_to_false_in_old_page.frame_num = page_read.frame_num;
+
+				write_to_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, i, change_valid_to_false_in_old_page);
+
 				return;
 			}
 
