@@ -190,7 +190,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 	}
 
 
-	printf("Finished working on a row number %d ", p_params->row_index);
+	printf("Finished working on a row number %d\n", p_params->row_index);
 
 	//signaled to_main that finished work, so that main could continue.
 	ReleaseSemaphore(semaphore, 1, NULL);
