@@ -68,7 +68,7 @@ void waiting_mode(size_t time_of_use, int page_index, ROW_THREAD_params_t* p_par
 			Page page_read = read_page_table_protected(p_params->page_table, (p_params->page_table_readers_writers_parmas), i);
 			size_t current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
 
-			if (page_read.end_time <= current_time) {
+			if ((page_read.end_time <= current_time) && page_read.valid==true) {
 
 				// needs to be mutex protected
 				WaitForSingleObject(output_file_mutex, INFINITE);
