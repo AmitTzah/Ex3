@@ -50,7 +50,7 @@ Page* create_and_init_page_table(size_t num_of_pages);
 
 DWORD WINAPI worker_row_thread(LPVOID lpParam);
 
-int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, int* current_time);
+size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, size_t* current_time);
 void write_to_current_time_protected(int updated_time, ReadersWritersParam *clock_readers_writers_parmas, int* current_time);
 
 Page read_page_table_protected(Page* page_table, ReadersWritersParam *page_table_readers_writers_parmas, int index_of_page_to_access);

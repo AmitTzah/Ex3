@@ -33,10 +33,11 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	
 	if (page_read.valid == false) {
-		int index_of_free_frame=0;
-		int index_of_page_where_end_time_has_passed=0;
+		// a frame is free if it's not in any of the pages(regardless if end time has passed)
+		int index_of_free_frame=-1;
+		int index_of_page_where_end_time_has_passed=-1;
 
-		//int frame=iterate_over_page_table_and_search_for_avaliable_frame(p_params, &index_of_free_frame, &index_of_page_where_end_time_has_passed);
+		//iterate_over_page_table_and_search_for_avaliable_frame(p_params, &index_of_free_frame, &index_of_page_where_end_time_has_passed);
 
 		//check if free frame was not found
 		if (index_of_free_frame == -1 && index_of_page_where_end_time_has_passed == -1) {
@@ -44,25 +45,33 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 			//signal to_main that goes to waiting mode, so that main could continue.
 			ReleaseSemaphore(semaphore, 1, NULL);
 
-			//waiting_mode()
+			//waiting_mode(time_of_use,page_index,p_params)
 
 		}
 
 		else {
 
-			//found a frame that can be evicted then used
+			//found a frame that can be evicted then used.
 			if (index_of_page_where_end_time_has_passed != -1) {
 
-				//print_eviction_line_to_output(index_of_page_where_end_time_has_passed, page table)
-				// print placement line to output(frame, p_params)
+				// needs to be mutex protected
+				//print_eviction_line_to_output(time, page_index,index_of_free_frame, p)
+				// print placement line to output(time, page_index,index_of_free_frame, p)
 				//update page table(p_params)
 			
 			}
 
+			//found frame that wasn't in any page
 			else {
-
-			// print placement line to output(frame, p_params)
-			//update page table(p_params)
+			// needs to be mutex protected
+			// print placement line to output(time, page_index,index_of_free_frame, p)
+			
+				//update page table
+				Page new_page;
+				new_page.valid = true;
+				new_page.end_time = time + time_of_use;
+				new_page.frame_num = index_of_free_frame;
+				write_to_page_table_protected(page_table, p_params->page_table_readers_writers_parmas, page_index, new_page);
 
 			}
 		}
@@ -108,17 +117,34 @@ Page* create_and_init_page_table(size_t num_of_pages) {
 
 
 
-/*
-waiting_mode(&current_time, thread, page_table, output_file) {
+
+void waiting_mode(int time_of_use, int page_index, ROW_THREAD_params_t* p_params) {
 
 	//contastnly reading page_table to find a frame where end_time<=current_time
 	//when finds such frame, it prints evict as needed and update the page table, then print placement.
 	//should be sempahore protected as the read/write problem code.
+	while (true) {
+		for (size_t i = 0; i < p_params->size_of_page_table; i++) {
+			Page page_read = read_page_table_protected(p_params->page_table, (p_params->page_table_readers_writers_parmas), i);
+			size_t current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
 
+			if (page_read.end_time <= current_time) {
 
+				// needs to be mutex protected
+				//print_eviction_line_to_output(page_read.end_time,i, page_read.frame_num, E)
 
+				Page new_page_to_write;
+				new_page_to_write.end_time = time_of_use + current_time;
+				new_page_to_write.valid = true;
+				new_page_to_write.frame_num = page_read.frame_num;
+				//print_placement_line_to_output(page_read.end_time, page_index,page_read.frame_num, P)
+				write_to_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, page_index, new_page_to_write);
+
+			}
+
+		}
+	}
 }
-*/
 
 
 
@@ -126,8 +152,9 @@ waiting_mode(&current_time, thread, page_table, output_file) {
 
 
 
-int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, int* current_time){
-	int current_t;
+
+size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, size_t* current_time){
+	size_t current_t;
 	
 
 	//need to add function to check failure and exit correctly
