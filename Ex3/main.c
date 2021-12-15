@@ -44,9 +44,6 @@ int main(int argc, char* argv[]) {
 	char* path_to_input_file = argv[3];
 	size_t i = 0;
 
-	//need to write a function to get clock times 
-	int clock[6] = { 0, 100, 900, 1000, 1500, 2000};
-
 	size_t current_time;
 
 	size_t overall_num_of_threads = num_of_rows_in_a_file(path_to_input_file);
@@ -85,7 +82,8 @@ int main(int argc, char* argv[]) {
 
 	//put inside protected area for clock writers (Based on reader/writers solution from tirgul)
 	//update current_time to next time.
-	write_to_current_time_protected(clock[i],  &clock_readers_writers_parmas, &current_time);
+
+	write_to_current_time_protected(parsed_row_array[0],  &clock_readers_writers_parmas, &current_time);
 
 
 	//this Sleep() function allows the threads which are currently waiting for a frame, to check if frames were freed up in the gap bettwen the current and previous time.
