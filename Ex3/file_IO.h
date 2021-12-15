@@ -22,6 +22,6 @@ int get_num_of_digits_in_an_int_number(int num);
 
 int Write_to_output(char* pathToFile, int virtual_page_num, int physycal_page_num, int time, BOOL need_to_empty, int write_from_offset);
 
-
+void add_member_to_sort_array(int* arr, int array_size, int num_to_add);
 #endif
 

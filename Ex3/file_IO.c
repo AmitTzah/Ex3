@@ -347,4 +347,47 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 		}
 		return count;
 	}
+	/// <summary>
+	/// the following func recives a pointer to a sorted int array
+	/// its size and a new number to add  and adds the number in the relevet location 
+	/// <param name="arr"></param>
+	/// <param name="array_size"></param>
+	void add_member_to_sort_array(int* arr, int array_size, int num_to_add)
+	{
+		if (array_size == 1)
+		{
+			*arr = num_to_add;
+			
+		}
+		else 
+		{ 
+			int former_num = *arr;
+			int next_num = 0;
+			BOOL added_the_num = FALSE;
+			arr++;
+			for (int i = 1; i < array_size; i++)
+			{
+				if (*arr >= num_to_add && num_to_add >= former_num && added_the_num== FALSE) // meaning we found the wanted place for the num to add
+				{
+					added_the_num = TRUE;
+					next_num = *arr;
+					*arr = num_to_add;
+				}
+				else if (added_the_num == TRUE)
+				{
+					int temp = *arr;
+					*arr = next_num;
+					next_num = temp;
+				}
+				arr++;
+			}
+			if (added_the_num == FALSE)
+			{
+				arr--;
+				*arr = num_to_add;
+				
+			}
+
+		}
+	}
 

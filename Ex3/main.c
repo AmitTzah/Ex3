@@ -26,6 +26,18 @@ Project: Ex3
 int main(int argc, char* argv[]) {
 
 	// ###### DELETE THIS ########
+	int* tep_arr = calloc(5, sizeof(int));
+	int arr_size = 1;
+	add_member_to_sort_array(tep_arr, arr_size, 0);
+	arr_size = 2;
+	add_member_to_sort_array(tep_arr, arr_size, 100);
+	arr_size = 3;
+	add_member_to_sort_array(tep_arr, arr_size, 10);
+	for (int i = 0; i < arr_size; i++)
+	{
+		printf("the arr in the %d is %d \n", i, *tep_arr);
+		tep_arr++;
+	}
 	int kupi = Write_to_output(OUTPUT_FILE_PATH, 0, 0, 0, FALSE, 0);
 
 	size_t num_of_virtual_bits_index = atoi(argv[1]) - 12;
