@@ -346,13 +346,17 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 
 		num_of_bits_to_write += 3;// added the spaces and char to the sum
 		printf("wrote to output: %s\n", Line_To_Write);
-		write_from_offset += WinWriteToFile(pathToFile, Line_To_Write, num_of_bits_to_write, write_from_offset);
+		WinWriteToFile(pathToFile, Line_To_Write, num_of_bits_to_write, write_from_offset);
+		write_from_offset += num_of_bits_to_write;
 		// start new line
-		write_from_offset += WinWriteToFile(pathToFile, "\r\n", 4, write_from_offset);
+
+		WinWriteToFile(pathToFile, "\r\n", 4, write_from_offset);
+		write_from_offset += 2;
 
 
 		return write_from_offset;
 	}
+
 
 
 
