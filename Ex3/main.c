@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 	//need to write a function to get clock times 
 	int clock[6] = { 0, 100, 900, 1000, 1500, 2000};
 
-	int current_time;
+	size_t current_time;
 
 	size_t overall_num_of_threads = num_of_rows_in_a_file(path_to_input_file);
 
