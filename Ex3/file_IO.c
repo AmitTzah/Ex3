@@ -241,7 +241,7 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 	void parse_row_to_array_of_ints(char* pathToFile, int index_of_wanted_line, int* arr_to_hold_parsed_values, int arr_size)
 	{
 		int file_offset = 0;
-		char* line_buffer = (char*)malloc(sizeof(char) * MAX_LENGTH_OF_ROW);
+		char* line_buffer = (char*)malloc(sizeof(char) * (MAX_LENGTH_OF_ROW+1));
 		int row_counter = 0;
 		file_offset = 0;
 
@@ -274,6 +274,7 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 			}
 		}
 
+		free(line_buffer);
 	}
 
 
