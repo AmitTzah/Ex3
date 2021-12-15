@@ -76,6 +76,13 @@ int main(int argc, char* argv[]) {
 	ReadersWritersParam page_table_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
 
 	int* parsed_row_array = calloc(NUM_OF_ROW_VARIABLES, sizeof(int));
+
+	if (parsed_row_array == NULL) {
+
+		printf("memory alllocation to parsed row array failed int main!\n");
+		//add exit routine function
+		exit(1);
+	}
 	while (i< overall_num_of_threads){
 
 	parse_row_to_array_of_ints(path_to_input_file, i, parsed_row_array, NUM_OF_ROW_VARIABLES);
