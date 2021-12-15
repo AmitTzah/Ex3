@@ -308,7 +308,7 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 	* the func returns the new offset needed to write an additional line
 	*/
 
-	int write_to_output(char* pathToFile, int virtual_page_num, int physycal_page_num, int time, BOOL need_to_empty, int write_from_offset)
+	int write_to_output(char* pathToFile, int virtual_page_num, int physycal_page_num, int time, BOOL need_to_empty, int write_from_offset, BOOL last_row)
 	{
 		char* Line_To_Write = (char*)malloc(sizeof(char) * MAX_LENGTH_OF_ROW);
 		char temp_str[MAX_LENGTH_OF_ROW];
@@ -351,9 +351,12 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 		WinWriteToFile(pathToFile, Line_To_Write, num_of_bits_to_write, write_from_offset);
 		write_from_offset += num_of_bits_to_write;
 		// start new line
-
-		WinWriteToFile(pathToFile, "\r\n", 4, write_from_offset);
-		write_from_offset += 2;
+		if (last_row == FALSE)
+		{
+			WinWriteToFile(pathToFile, "\r\n", 4, write_from_offset);
+			write_from_offset += 2;
+		}
+		
 
 		free(Line_To_Write);
 		return write_from_offset;
