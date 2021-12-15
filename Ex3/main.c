@@ -26,19 +26,8 @@ Project: Ex3
 int main(int argc, char* argv[]) {
 
 	// ###### DELETE THIS ########
-	int* tep_arr = calloc(5, sizeof(int));
-	int arr_size = 1;
-	add_member_to_sort_array(tep_arr, arr_size, 0);
-	arr_size = 2;
-	add_member_to_sort_array(tep_arr, arr_size, 100);
-	arr_size = 3;
-	add_member_to_sort_array(tep_arr, arr_size, 10);
-	for (int i = 0; i < arr_size; i++)
-	{
-		printf("the arr in the %d is %d \n", i, *tep_arr);
-		tep_arr++;
-	}
-	int kupi = Write_to_output(OUTPUT_FILE_PATH, 0, 0, 0, FALSE, 0);
+	int* parsed_row_array = calloc(NUM_OF_ROW_VARIABLES, sizeof(int));
+	parse_row_to_array_of_ints(argv[4], 3, parsed_row_array, NUM_OF_ROW_VARIABLES);
 
 	size_t num_of_virtual_bits_index = atoi(argv[1]) - 12;
 	size_t num_of_physycal_bits_index = atoi(argv[2]) - 12;
@@ -85,7 +74,7 @@ int main(int argc, char* argv[]) {
 	ReadersWritersParam clock_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
 	ReadersWritersParam page_table_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
 
-	int* parsed_row_array = calloc(NUM_OF_ROW_VARIABLES, sizeof(int));
+	//int* parsed_row_array = calloc(NUM_OF_ROW_VARIABLES, sizeof(int));
 	while (i< overall_num_of_threads){
 
 	parse_row_to_array_of_ints(path_to_input_file, i, parsed_row_array, NUM_OF_ROW_VARIABLES);
