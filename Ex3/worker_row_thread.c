@@ -39,7 +39,8 @@ void waiting_mode(size_t time_of_use, int page_index, ROW_THREAD_params_t* p_par
 	}
 }
 
-
+//the worker thread
+//each thread handles a row from the input file.
 DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	ROW_THREAD_params_t* p_params;
@@ -137,7 +138,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 	return ROW_THREAD__CODE_SUCCESS;
 }
 
-
+//Creates an array of pages, allocated on heap so should be freed in caller. Each page is initialized to valid=0.
 Page* create_and_init_page_table(size_t num_of_pages) {
 
 	Page* page_table= calloc(num_of_pages, sizeof(Page));
@@ -158,18 +159,8 @@ Page* create_and_init_page_table(size_t num_of_pages) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+//based on reader/writers solution presented in tirgul.
+//Clock_reader_writers_params are global, and whenever a thread wants to read the clock it does it through this protected zone.
 size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, size_t* current_time){
 	size_t current_t;
 	
@@ -210,6 +201,8 @@ size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_pa
 	return current_t;
 }
 
+//based on reader/writers solution presented in tirgul.
+//Clock_reader_writers_params are global, and whenever a thread wants to write to the clock it does it through this protected zone.
 void write_to_current_time_protected(int updated_time, ReadersWritersParam* clock_readers_writers_parmas, int* current_time) {
 
 	WaitForSingleObject(clock_readers_writers_parmas->turn_slide_mutex, INFINITE);
@@ -230,7 +223,8 @@ void write_to_current_time_protected(int updated_time, ReadersWritersParam* cloc
 }
 
 
-
+// based on reader / writers solution presented in tirgul.
+//Page_table_reader_writers_params are global, and whenever a thread wants to read the page_table it does it through this protected zone.
 Page read_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access){
 	Page page_read;
 
@@ -270,6 +264,9 @@ Page read_page_table_protected(Page* page_table, ReadersWritersParam* page_table
 	return page_read;
 }
 
+
+// based on reader / writers solution presented in tirgul.
+//Page_table_reader_writers_params are global, and whenever a thread wants to write to the page_table it does it through this protected zone.
 void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write) {
 
 	WaitForSingleObject(page_table_readers_writers_parmas->turn_slide_mutex, INFINITE);
@@ -289,28 +286,36 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 
 }
 
+//this function iterates over page_table in a rising index search for frames.
+//if a frame is found that is not in any page, index_of_free_frame is set to the correct index in caller.
+//if a frame is found in a page where the end time has passed(smaller than current time), then the other index is set.
 
 void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t* p_params, int * index_of_free_frame, int * index_of_page_where_end_time_has_passed) {
 
 	Page page_read;
 	int current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
-	for (int i = 0; i < current_time; i++) {
+	int numebr_of_frames = p_params->num_of_frames;
 
-		page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, i);
-		if (page_read.end_time <= *(p_params->current_time)) {
+	for (int i = 0; i < numebr_of_frames; i++) {
+		for (int j = 0; j < p_params->size_of_page_table; j ++) {
+			page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, j);
+			if (page_read.valid == true && page_read.frame_num == i) {
+				if(page_read.end_time <= current_time ){
+					
+					*index_of_page_where_end_time_has_passed = j;
+					return;
 
-			*index_of_page_where_end_time_has_passed = i;
-			return;
+				}
+				else {
+					break;
+				}
+
+			}
 		}
 
-		else { 
-
-			//index_of_free_frame=check_if_frame_is_not_in_any_pages_and_return_its_index(page_table)
-		}
-
+		*index_of_free_frame = i;
+		return;
 	}
-
-
 	
 }
 

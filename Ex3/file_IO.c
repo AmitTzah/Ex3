@@ -303,7 +303,7 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 	/*
 	* the following func recives file location, file offset and the aproprate vars
 	* writes them in order to the output file
-	* the func returns the new offset needed from the file
+	* the func returns the new offset needed to write an additional line
 	*/
 
 	int Write_to_output(char* pathToFile, int virtual_page_num, int physycal_page_num, int time, BOOL need_to_empty, int write_from_offset)
