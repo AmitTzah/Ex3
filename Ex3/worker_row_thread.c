@@ -166,7 +166,15 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 				new_page.end_time = time + time_of_use;
 				new_page.frame_num = page_read.frame_num;
 				write_to_page_table_protected(page_table, p_params->page_table_readers_writers_parmas, page_index, new_page);
-			
+
+				Page change_valid_to_false_in_old_page;
+				change_valid_to_false_in_old_page.end_time = time_of_use + page_read.end_time;
+				change_valid_to_false_in_old_page.valid = false;
+				change_valid_to_false_in_old_page.frame_num = page_read.frame_num;
+
+				write_to_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, index_of_page_where_end_time_has_passed, change_valid_to_false_in_old_page);
+
+
 			}
 
 			//found frame that wasn't in any page
@@ -363,5 +371,31 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 }
 
 
+void print_left_over_evictions(Page* page_table, size_t num_of_pages) {
+	size_t current_max = 0;
+	
+	for (int i = 0; i < num_of_pages; i++) {
+		if (page_table->valid == true) {
 
+			if (current_max< (page_table->end_time)) {
+
+				current_max = page_table->end_time;
+			}
+
+		}
+
+		page_table++;
+	}
+
+	page_table = page_table - num_of_pages;
+
+	for (int i = 0; i <  num_of_pages; i++) {
+		if(page_table->valid==true)
+
+		write_to_output_from_offset+=write_to_output(OUTPUT_FILE_PATH, i, page_table->frame_num, current_max,true, write_to_output_from_offset);
+		page_table++;
+	}
+
+
+}
 

@@ -19,7 +19,7 @@
 #define SIZE_OF_PAGE  4096
 #define NUM_OF_ROW_VARIABLES 3
 #define MAX_LENGTH_OF_ROW 200
-#define THREAD_TIMEOUT_IN_MS 30
+#define THREAD_TIMEOUT_IN_MS 10
 
 
 #endif

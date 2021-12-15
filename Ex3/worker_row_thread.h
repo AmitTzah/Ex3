@@ -56,5 +56,6 @@ void write_to_current_time_protected(int updated_time, ReadersWritersParam *cloc
 Page read_page_table_protected(Page* page_table, ReadersWritersParam *page_table_readers_writers_parmas, int index_of_page_to_access);
 void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write);
 
+void print_left_over_evictions(Page* page_table, size_t num_of_pages);
 
 #endif

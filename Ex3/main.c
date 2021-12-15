@@ -128,8 +128,14 @@ int main(int argc, char* argv[]) {
 
 	}
 
-	//need to check if there are stiil threads in waiting mode.
+	//Allow threads that are still in waitingmode  after the last clock time to catch finished frames.
+	write_to_current_time_protected(INFINITE, &clock_readers_writers_parmas, &current_time);
+	Sleep(THREAD_TIMEOUT_IN_MS);
+
 	//print_left_over_evictions(page_table, output_file)
+	
+	print_left_over_evictions(page_table, num_of_pages);
+	
 	//free_handles
 	//free arrays
 
