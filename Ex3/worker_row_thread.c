@@ -19,12 +19,13 @@ extern HANDLE output_file_mutex;
 //if a frame is found in a page where the end time has passed(smaller than current time), then the other index is set.
 
 void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t* p_params, int* index_of_free_frame, int* index_of_page_where_end_time_has_passed) {
-
+	int i;
 	Page page_read;
 	size_t current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
 	int numebr_of_frames = p_params->num_of_frames;
+	int was_frame_found_in_page_table = 0;
 
-	for (int i = 0; i < numebr_of_frames; i++) {
+	for ( i = 0; i < numebr_of_frames; i++) {
 		for (size_t j = 0; j < p_params->size_of_page_table; j++) {
 			page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, j);
 			if (page_read.valid == true && page_read.frame_num == i) {
@@ -35,16 +36,23 @@ void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t*
 
 				}
 				else {
+					was_frame_found_in_page_table = 1;
 					break;
 				}
 
 			}
 		}
+		if (was_frame_found_in_page_table == 0) {
+			*index_of_free_frame = i;
+			return;
+		}
 
-		*index_of_free_frame = i;
-		return;
+		was_frame_found_in_page_table = 0;
 	}
-
+	
+		
+		
+	
 }
 
 
