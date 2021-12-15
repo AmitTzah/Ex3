@@ -153,6 +153,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 				WaitForSingleObject(output_file_mutex, INFINITE);
 
 				//print_eviction_line_to_output(time, index_of_page_where_end_time_has_passed,page_read.frame_num, E)
+				page_read = read_page_table_protected(page_table, (p_params->page_table_readers_writers_parmas), index_of_page_where_end_time_has_passed);
 				write_to_output_from_offset += write_to_output(OUTPUT_FILE_PATH, index_of_page_where_end_time_has_passed, page_read.frame_num, time, true, write_to_output_from_offset);
 				// print placement line to output(time, page_index,page_read.frame_num, p)
 				write_to_output_from_offset += write_to_output(OUTPUT_FILE_PATH, page_index, page_read.frame_num, time, false, write_to_output_from_offset);

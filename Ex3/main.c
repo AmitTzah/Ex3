@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
 
 	//this Sleep() function allows the threads which are currently waiting for a frame, to check if frames were freed up in the gap bettwen the current and previous time.
 	//It does not slow down the program! since if there are no other threads ready to run, the function returns immediately. 
-	Sleep(0);
+	Sleep(THREAD_TIMEOUT_IN_MS);
 
 	//pass thread parameters
 	p_parameters_struct = &(array_of_thread_parameters_structs[i]);
