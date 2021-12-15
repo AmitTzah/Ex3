@@ -7,6 +7,45 @@
 #include <math.h>
 
 #include "worker_row_thread.h"
+#include "file_IO.h"
+
+extern int write_to_output_from_offset;
+extern HANDLE output_file_mutex;
+
+
+
+//this function iterates over page_table in a rising index search for frames.
+//if a frame is found that is not in any page, index_of_free_frame is set to the correct index in caller.
+//if a frame is found in a page where the end time has passed(smaller than current time), then the other index is set.
+
+void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t* p_params, int* index_of_free_frame, int* index_of_page_where_end_time_has_passed) {
+
+	Page page_read;
+	size_t current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
+	int numebr_of_frames = p_params->num_of_frames;
+
+	for (int i = 0; i < numebr_of_frames; i++) {
+		for (size_t j = 0; j < p_params->size_of_page_table; j++) {
+			page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, j);
+			if (page_read.valid == true && page_read.frame_num == i) {
+				if (page_read.end_time <= current_time) {
+
+					*index_of_page_where_end_time_has_passed = j;
+					return;
+
+				}
+				else {
+					break;
+				}
+
+			}
+		}
+
+		*index_of_free_frame = i;
+		return;
+	}
+
+}
 
 
 //All threads that are currently waiting for a frame to evict. 
@@ -24,8 +63,15 @@ void waiting_mode(size_t time_of_use, int page_index, ROW_THREAD_params_t* p_par
 			if (page_read.end_time <= current_time) {
 
 				// needs to be mutex protected
-				//print_eviction_line_to_output(page_read.end_time,i, page_read.frame_num, E)
+				WaitForSingleObject(output_file_mutex, INFINITE);
+
+				//Write_to_output(page_read.end_time,i, page_read.frame_num, E)
+				write_to_output_from_offset += write_to_output(OUTPUT_FILE_PATH, i, page_read.frame_num, page_read.end_time, true, write_to_output_from_offset);
 				//print_placement_line_to_output(page_read.end_time, page_index,page_read.frame_num, P)
+				write_to_output_from_offset += write_to_output(OUTPUT_FILE_PATH, page_index, page_read.frame_num, page_read.end_time, false, write_to_output_from_offset);
+
+				ReleaseMutex(output_file_mutex);
+
 				Page new_page_to_write;
 				new_page_to_write.end_time = time_of_use + page_read.end_time;
 				new_page_to_write.valid = true;
@@ -69,7 +115,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 		int index_of_free_frame=-1;
 		int index_of_page_where_end_time_has_passed=-1;
 
-		//iterate_over_page_table_and_search_for_avaliable_frame(p_params, &index_of_free_frame, &index_of_page_where_end_time_has_passed);
+		iterate_over_page_table_and_search_for_avaliable_frame(p_params, &index_of_free_frame, &index_of_page_where_end_time_has_passed);
 
 		//check if free frame was not found
 		if (index_of_free_frame == -1 && index_of_page_where_end_time_has_passed == -1) {
@@ -86,9 +132,17 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 			//found a frame that can be evicted then used.
 			if (index_of_page_where_end_time_has_passed != -1) {
 
+				
 				// needs to be mutex protected
+				WaitForSingleObject(output_file_mutex, INFINITE);
+
 				//print_eviction_line_to_output(time, index_of_page_where_end_time_has_passed,page_read.frame_num, E)
+				write_to_output_from_offset += write_to_output(OUTPUT_FILE_PATH, index_of_page_where_end_time_has_passed, page_read.frame_num, time, true, write_to_output_from_offset);
 				// print placement line to output(time, page_index,page_read.frame_num, p)
+				write_to_output_from_offset += write_to_output(OUTPUT_FILE_PATH, page_index, page_read.frame_num, time, false, write_to_output_from_offset);
+
+				ReleaseMutex(output_file_mutex);
+
 				//update page table
 				Page new_page;
 				new_page.valid = true;
@@ -101,14 +155,19 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 			//found frame that wasn't in any page
 			else {
 			// needs to be mutex protected
+			WaitForSingleObject(output_file_mutex, INFINITE);
 			// print placement line to output(time, page_index,index_of_free_frame, p)
+			write_to_output_from_offset += write_to_output(OUTPUT_FILE_PATH, page_index, index_of_free_frame, time, false, write_to_output_from_offset);
+
+			ReleaseMutex(output_file_mutex);
+
 			
-				//update page table
-				Page new_page;
-				new_page.valid = true;
-				new_page.end_time = time + time_of_use;
-				new_page.frame_num = index_of_free_frame;
-				write_to_page_table_protected(page_table, p_params->page_table_readers_writers_parmas, page_index, new_page);
+			//update page table
+			Page new_page;
+			new_page.valid = true;
+			new_page.end_time = time + time_of_use;
+			new_page.frame_num = index_of_free_frame;
+			write_to_page_table_protected(page_table, p_params->page_table_readers_writers_parmas, page_index, new_page);
 
 			}
 		}
@@ -286,38 +345,6 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 
 }
 
-//this function iterates over page_table in a rising index search for frames.
-//if a frame is found that is not in any page, index_of_free_frame is set to the correct index in caller.
-//if a frame is found in a page where the end time has passed(smaller than current time), then the other index is set.
-
-void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t* p_params, int * index_of_free_frame, int * index_of_page_where_end_time_has_passed) {
-
-	Page page_read;
-	int current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
-	int numebr_of_frames = p_params->num_of_frames;
-
-	for (int i = 0; i < numebr_of_frames; i++) {
-		for (int j = 0; j < p_params->size_of_page_table; j ++) {
-			page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, j);
-			if (page_read.valid == true && page_read.frame_num == i) {
-				if(page_read.end_time <= current_time ){
-					
-					*index_of_page_where_end_time_has_passed = j;
-					return;
-
-				}
-				else {
-					break;
-				}
-
-			}
-		}
-
-		*index_of_free_frame = i;
-		return;
-	}
-	
-}
 
 
 

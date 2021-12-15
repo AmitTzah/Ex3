@@ -22,8 +22,16 @@ Project: Ex3
 #include "HardCodedData.h"
 #include "file_IO.h"
 
+int write_to_output_from_offset;
+HANDLE output_file_mutex;
 
 int main(int argc, char* argv[]) {
+
+	write_to_output_from_offset = 0;
+	output_file_mutex  = CreateMutex(
+		NULL,   /* default security attributes */
+		FALSE,	/* don't lock mutex immediately */
+		NULL);  /* un-named */
 
 	size_t num_of_virtual_bits_index = atoi(argv[1]) - 12;
 	size_t num_of_physycal_bits_index = atoi(argv[2]) - 12;
