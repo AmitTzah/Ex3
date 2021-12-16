@@ -386,8 +386,11 @@ void print_left_over_evictions(Page* page_table, unsigned int num_of_pages) {
 				current_max = page_table->end_time;
 				
 			}
-			if (page_table->frame_num >= final_page_num);
+			if (page_table->frame_num >= final_page_num)
+			{
 				final_page_num = page_table->frame_num;
+			}
+				
 
 		}
 

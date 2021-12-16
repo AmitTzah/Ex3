@@ -27,7 +27,14 @@ HANDLE output_file_mutex;
 
 int main(int argc, char* argv[]) {
 
+
+	
 	char* path_to_input_file = argv[3];
+
+	// ##### DELETE THIS ###################
+	char* output_pathe = (char*)malloc(sizeof(char));
+	find_output_path(path_to_input_file, output_pathe);
+
 	unsigned int current_time;
 	DWORD wait_code;
 		

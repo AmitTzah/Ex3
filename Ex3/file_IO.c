@@ -299,23 +299,6 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 	}
 
 
-	/// <summary>
-/// 
-/// </Returns number of digits in an integer number>
-/// <param name="num"></num>
-/// <returns></number of digit>
-	void find_output_path(int num)
-	{
-		if (num == 0)
-			return 1;
-		int count = 0;
-		while (num != 0)
-		{
-			count++;
-			num = num / 10;
-		}
-		return count;
-	}
 
 
 
@@ -388,41 +371,52 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 	and puts the output file location inside the buffer
 	
 	*/
-	void find_outPut_path(char* pathToFile, int index_of_wanted_line, int* arr_to_hold_parsed_values, int arr_size)
+	void find_output_path(char* pathToFile, char* output_file)
 	{
-		int file_offset = 0;
+		
 		char* line_buffer = (char*)malloc(sizeof(char) * (MAX_LENGTH_OF_ROW + 1));
-		int row_counter = 0;
-		file_offset = 0;
-
+		char* former_char = NULL;
+		
 		if (line_buffer == NULL)
 		{
 			printf("error alocating memory in row_to_int ");
 			exit(1);
 		}
-		while (TRUE)
+		strcpy(line_buffer, pathToFile);
+		
+		
+		char* temp_char_1 = strtok(line_buffer, "/" );
+		if (temp_char_1 != NULL)
+		{ 
+			strcpy(output_file, temp_char_1);
+			strcat(output_file, "/");
+		}
+		temp_char_1 = strtok(NULL, "/");
+		if (temp_char_1 != NULL)
+		{
+			strcpy(former_char, temp_char_1);
+		}
+		temp_char_1 = strtok(NULL, "/");
+
+		
+		while (temp_char_1!= NULL)
 		{
 
-			file_offset += WinReadFromFile(pathToFile, line_buffer, MAX_LENGTH_OF_ROW, file_offset);
-			char* temp_char_1 = strtok(line_buffer, "\r\n");
-			for (int j = 1; j <= index_of_wanted_line; j++)
+			
+			if (former_char != NULL)
 			{
-				temp_char_1 = strtok(NULL, "\r\n");
+				strcat(output_file, former_char);
+				strcat(output_file, "/");
 			}
-			// we are at wanted row
-			{
-				char* temp_char = strtok(temp_char_1, " ");
-				*arr_to_hold_parsed_values = atoi(temp_char);
-				arr_to_hold_parsed_values++;
-
-				for (int i = 1; i < arr_size; i++) {
-					temp_char = strtok(NULL, " ");
-					*arr_to_hold_parsed_values = atoi(temp_char);
-					arr_to_hold_parsed_values++;
-				}
-				break;
-			}
+			
+			strcpy(former_char, temp_char_1);
+			temp_char_1 = strtok(NULL, "/");
+			
+			
+			
 		}
+		strcat(output_file, "Output.txt");
+		
 	}
 
 
