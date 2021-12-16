@@ -299,6 +299,24 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 	}
 
 
+	/// <summary>
+/// 
+/// </Returns number of digits in an integer number>
+/// <param name="num"></num>
+/// <returns></number of digit>
+	void find_output_path(int num)
+	{
+		if (num == 0)
+			return 1;
+		int count = 0;
+		while (num != 0)
+		{
+			count++;
+			num = num / 10;
+		}
+		return count;
+	}
+
 
 
 
