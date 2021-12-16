@@ -74,9 +74,9 @@ void waiting_mode(unsigned int time_of_use, int page_index, ROW_THREAD_params_t*
 				WaitForSingleObject(output_file_mutex, INFINITE);
 
 				//Write_to_output(page_read.end_time,i, page_read.frame_num, E)
-				write_to_output_from_offset = write_to_output(OUTPUT_FILE_PATH, i, page_read.frame_num, page_read.end_time, true, write_to_output_from_offset);
+				write_to_output_from_offset = write_to_output(p_params->path_to_output, i, page_read.frame_num, page_read.end_time, true, write_to_output_from_offset);
 				//print_placement_line_to_output(page_read.end_time, page_index,page_read.frame_num, P)
-				write_to_output_from_offset = write_to_output(OUTPUT_FILE_PATH, page_index, page_read.frame_num, page_read.end_time, false, write_to_output_from_offset);
+				write_to_output_from_offset = write_to_output(p_params->path_to_output, page_index, page_read.frame_num, page_read.end_time, false, write_to_output_from_offset);
 
 				ReleaseMutex(output_file_mutex);
 
@@ -154,9 +154,9 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 				//print_eviction_line_to_output(time, index_of_page_where_end_time_has_passed,page_read.frame_num, E)
 				page_read = read_page_table_protected(page_table, (p_params->page_table_readers_writers_parmas), index_of_page_where_end_time_has_passed);
-				write_to_output_from_offset = write_to_output(OUTPUT_FILE_PATH, index_of_page_where_end_time_has_passed, page_read.frame_num, time, true, write_to_output_from_offset);
+				write_to_output_from_offset = write_to_output(p_params->path_to_output, index_of_page_where_end_time_has_passed, page_read.frame_num, time, true, write_to_output_from_offset);
 				// print placement line to output(time, page_index,page_read.frame_num, p)
-				write_to_output_from_offset = write_to_output(OUTPUT_FILE_PATH, page_index, page_read.frame_num, time, false, write_to_output_from_offset);
+				write_to_output_from_offset = write_to_output(p_params->path_to_output, page_index, page_read.frame_num, time, false, write_to_output_from_offset);
 
 				ReleaseMutex(output_file_mutex);
 
@@ -182,7 +182,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 			// needs to be mutex protected
 			WaitForSingleObject(output_file_mutex, INFINITE);
 			// print placement line to output(time, page_index,index_of_free_frame, p)
-			write_to_output_from_offset = write_to_output(OUTPUT_FILE_PATH, page_index, index_of_free_frame, time, false, write_to_output_from_offset);
+			write_to_output_from_offset = write_to_output(p_params->path_to_output, page_index, index_of_free_frame, time, false, write_to_output_from_offset);
 
 			ReleaseMutex(output_file_mutex);
 
@@ -374,7 +374,7 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 }
 
 //this function does not need to be read/write protected, since by here all threads but main have finished.
-void print_left_over_evictions(Page* page_table, unsigned int num_of_pages) {
+void print_left_over_evictions(Page* page_table, unsigned int num_of_pages ,char* path_to_output) {
 	unsigned int current_max = 0;
 	
 	for (unsigned int i = 0; i < num_of_pages; i++) {
@@ -395,7 +395,7 @@ void print_left_over_evictions(Page* page_table, unsigned int num_of_pages) {
 	for (unsigned int i = 0; i <  num_of_pages; i++) {
 		if(page_table->valid==true)
 
-		write_to_output_from_offset=write_to_output(OUTPUT_FILE_PATH, i, page_table->frame_num, current_max,true, write_to_output_from_offset);
+		write_to_output_from_offset=write_to_output(path_to_output, i, page_table->frame_num, current_max,true, write_to_output_from_offset);
 		page_table++;
 	}
 

@@ -28,6 +28,9 @@ HANDLE output_file_mutex;
 int main(int argc, char* argv[]) {
 
 	char* path_to_input_file = argv[3];
+	char* path_to_output = find_output_path(path_to_input_file);
+
+
 	unsigned int current_time;
 	DWORD wait_code;
 		
@@ -99,6 +102,7 @@ int main(int argc, char* argv[]) {
 	p_parameters_struct->parsed_row_array = parsed_row_array;
 	p_parameters_struct->page_table = page_table;
 	p_parameters_struct->semaphore = array_of_semaphore_objects[i];
+	p_parameters_struct->path_to_output= path_to_output;
 
 	//this thread will either finish/or will get put into waiting mode, then it will update the clock
 	array_of_thread_pointers[i] = CreateThreadSimple(worker_row_thread, p_parameters_struct, &(p_thread_ids[i]));
@@ -130,7 +134,7 @@ int main(int argc, char* argv[]) {
 	write_to_current_time_protected(INFINITE, &clock_readers_writers_parmas, &current_time);
 	Sleep(THREAD_TIMEOUT_IN_MS);
 	
-	print_left_over_evictions(page_table, num_of_pages);
+	print_left_over_evictions(page_table, num_of_pages, path_to_output);
 	
 Main_Cleanup:
 
@@ -152,6 +156,7 @@ Main_Cleanup:
 	free(page_table);
 	free(parsed_row_array);
 	free(array_of_semaphore_objects);
+	free(path_to_output);
 
 	return 0;
 
