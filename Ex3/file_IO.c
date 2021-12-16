@@ -352,7 +352,7 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 		write_from_offset += num_of_bits_to_write;
 		// start new line
 
-		WinWriteToFile(pathToFile, "\r\n", 4, write_from_offset);
+		WinWriteToFile(pathToFile, "\r\n", 2, write_from_offset);
 		write_from_offset += 2;
 
 		free(Line_To_Write);
