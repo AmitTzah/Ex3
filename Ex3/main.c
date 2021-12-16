@@ -28,19 +28,19 @@ HANDLE output_file_mutex;
 int main(int argc, char* argv[]) {
 
 	char* path_to_input_file = argv[3];
-	size_t current_time;
+	unsigned int current_time;
 	DWORD wait_code;
 		
-	size_t overall_num_of_threads = num_of_rows_in_a_file(path_to_input_file);
+	unsigned int overall_num_of_threads = num_of_rows_in_a_file(path_to_input_file);
 	ROW_THREAD_params_t* p_parameters_struct = NULL;
 
 	write_to_output_from_offset = 0;
 
-	size_t num_of_virtual_bits_index = atoi(argv[1]) - 12;
-	size_t num_of_physycal_bits_index = atoi(argv[2]) - 12;
+	unsigned int num_of_virtual_bits_index = atoi(argv[1]) - 12;
+	unsigned int num_of_physycal_bits_index = atoi(argv[2]) - 12;
 
-	size_t num_of_frames = pow(2.0, num_of_physycal_bits_index);
-	size_t num_of_pages = pow(2.0, num_of_virtual_bits_index);
+	unsigned int num_of_frames = pow(2.0, num_of_physycal_bits_index);
+	unsigned int num_of_pages = pow(2.0, num_of_virtual_bits_index);
 	
 	// the following are parameters used for the reader - writer solution presented in tirgul7
 	ReadersWritersParam clock_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
@@ -68,14 +68,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	//initialize array_of_thread_parameters_structs 
-	for (size_t j = 0; j < overall_num_of_threads; j++)
+	for (unsigned int j = 0; j < overall_num_of_threads; j++)
 
 	{
 		array_of_thread_parameters_structs[j].page_table = page_table;
 	
 	}
 
-	size_t i = 0;
+	unsigned int i = 0;
 
 	while (i< overall_num_of_threads){
 

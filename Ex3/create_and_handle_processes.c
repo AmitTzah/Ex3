@@ -234,7 +234,7 @@ void close_array_of_handles(HANDLE* array_of_handles, int size_of_array) {
 }
 
 //if failes, returns NULL, this should be checked and handled in caller!
-HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_objects, size_t initial_semaphore_count, size_t maximum_count) {
+HANDLE* create_and_init_array_semaphore_objects(unsigned int overall_num_of_semaphore_objects, unsigned int initial_semaphore_count, unsigned int maximum_count) {
 	HANDLE* semaphore_array;
 	HANDLE semaphore_object;
 	semaphore_array = calloc(overall_num_of_semaphore_objects, sizeof(HANDLE));
@@ -248,7 +248,7 @@ HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_
 	}
 
 
-	for (size_t i = 0; i < overall_num_of_semaphore_objects; i++) {
+	for (unsigned int i = 0; i < overall_num_of_semaphore_objects; i++) {
 
 		 semaphore_object = CreateSemaphore(
 			NULL,	/* Default security attributes */
