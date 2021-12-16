@@ -58,11 +58,11 @@ DWORD CreateProcessSimpleMain(LPSTR command_line_arguments_to_run, int time_out_
 	DWORD				waitcode;
 	DWORD				exitcode;
 	BOOL				retVal;
-	
 
 
-		
-													/*  Start the child process. */
+
+
+	/*  Start the child process. */
 	retVal = CreateProcessSimple(command_line_arguments_to_run, &procinfo);
 
 
@@ -70,10 +70,10 @@ DWORD CreateProcessSimpleMain(LPSTR command_line_arguments_to_run, int time_out_
 	{
 		const int error = GetLastError();
 		printf("Process Creation Failed!\n");
-		
+
 		printf("Error code %d", error);
 		exit(1);
-		
+
 	}
 
 
@@ -128,7 +128,7 @@ DWORD CreateProcessSimpleMain(LPSTR command_line_arguments_to_run, int time_out_
 /// <param name="arguments_array"></Am array of const strings argv[0], argv[1] etc>
 /// <returns></Returns a dynamically allocated command line strings. This string should be freed in caller!>
 
-char * concatenate_command_line_arguments_into_a_string (int num_of_arguments, char * arguments_array[])
+char* concatenate_command_line_arguments_into_a_string(int num_of_arguments, char* arguments_array[])
 
 {
 	int i;
@@ -145,20 +145,20 @@ char * concatenate_command_line_arguments_into_a_string (int num_of_arguments, c
 		printf("Error! memory not allocated to command_line_string.\n");
 		exit(1);
 	}
-	else{
+	else {
 		memset(command_line_string, 0, needed);
-	
 
-	strcpy(command_line_string,  arguments_array[0]);
 
-	for (i = 1; i < num_of_arguments; ++i) {
-		strcat(command_line_string, " ");
-		strcat(command_line_string, arguments_array[i]);
-	}
+		strcpy(command_line_string, arguments_array[0]);
+
+		for (i = 1; i < num_of_arguments; ++i) {
+			strcat(command_line_string, " ");
+			strcat(command_line_string, arguments_array[i]);
+		}
 	}
 
 	return command_line_string;
-	
+
 }
 
 
@@ -172,7 +172,7 @@ char * concatenate_command_line_arguments_into_a_string (int num_of_arguments, c
 /// <param name="p_thread_id"></A pointer to DWORD thread_id, this is an out parameter.>
 /// <returns></returns>
 //If fails, returns NULL. This should be check and handled in caller!
-HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,LPVOID p_thread_parameters, LPDWORD p_thread_id){
+HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine, LPVOID p_thread_parameters, LPDWORD p_thread_id) {
 
 
 	HANDLE thread_handle;
@@ -215,7 +215,7 @@ HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,LPVOID p_thread
 
 //this functions gets an array of handles and closes all handles.
 void close_array_of_handles(HANDLE* array_of_handles, int size_of_array) {
-	
+
 	int ret_val;
 
 	for (int j = 0; j < size_of_array; j++) {
@@ -250,10 +250,10 @@ HANDLE* create_and_init_array_semaphore_objects(unsigned int overall_num_of_sema
 
 	for (unsigned int i = 0; i < overall_num_of_semaphore_objects; i++) {
 
-		 semaphore_object = CreateSemaphore(
+		semaphore_object = CreateSemaphore(
 			NULL,	/* Default security attributes */
-			 initial_semaphore_count,		/* Initial Count - all slots are empty */
-			 maximum_count,		/* Maximum Count */
+			initial_semaphore_count,		/* Initial Count - all slots are empty */
+			maximum_count,		/* Maximum Count */
 			NULL);  /* un-named */
 
 		if (semaphore_object == NULL)
@@ -297,10 +297,10 @@ ReadersWritersParam create_and_init_readers_writers_param_struct(int max_num_of_
 		NULL);  /* un-named */
 
 
-	if (params.room_empty_semaphore == NULL || params.turn_slide_mutex==NULL || params.mutex==NULL)
+	if (params.room_empty_semaphore == NULL || params.turn_slide_mutex == NULL || params.mutex == NULL)
 	{
 		printf("failed to init readers_writers_param struct, exiting!\n");
-		
+
 		exit(1);
 	}
 

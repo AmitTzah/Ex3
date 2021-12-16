@@ -25,7 +25,7 @@ void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t*
 	int numebr_of_frames = p_params->num_of_frames;
 	int was_frame_found_in_page_table = 0;
 
-	for ( i = 0; i < numebr_of_frames; i++) {
+	for (i = 0; i < numebr_of_frames; i++) {
 		for (unsigned int j = 0; j < p_params->size_of_page_table; j++) {
 			page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, j);
 			if (page_read.valid == true && page_read.frame_num == i) {
@@ -49,10 +49,10 @@ void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t*
 
 		was_frame_found_in_page_table = 0;
 	}
-	
-		
-		
-	
+
+
+
+
 }
 
 
@@ -68,7 +68,7 @@ void waiting_mode(unsigned int time_of_use, int page_index, ROW_THREAD_params_t*
 			Page page_read = read_page_table_protected(p_params->page_table, (p_params->page_table_readers_writers_parmas), i);
 			unsigned int current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
 
-			if ((page_read.end_time <= current_time) && page_read.valid==true) {
+			if ((page_read.end_time <= current_time) && page_read.valid == true) {
 
 				// needs to be mutex protected
 				WaitForSingleObject(output_file_mutex, INFINITE);
@@ -106,7 +106,7 @@ void waiting_mode(unsigned int time_of_use, int page_index, ROW_THREAD_params_t*
 DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	ROW_THREAD_params_t* p_params;
-	
+
 	/* Check if lpParam is NULL */
 	if (NULL == lpParam)
 	{
@@ -118,18 +118,18 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	unsigned int time = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 3];
 	int page_index = floor((p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 2]) / SIZE_OF_PAGE);
-	unsigned int time_of_use = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES-1];
+	unsigned int time_of_use = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 1];
 	int* current_time = p_params->current_time;
 	HANDLE semaphore = p_params->semaphore;
-	Page* page_table=p_params->page_table;
+	Page* page_table = p_params->page_table;
 
 	Page page_read = read_page_table_protected(page_table, (p_params->page_table_readers_writers_parmas), page_index);
 
-	
+
 	if (page_read.valid == false) {
 		// a frame is free if it's not in any of the pages(regardless if end time has passed)
-		int index_of_free_frame=-1;
-		int index_of_page_where_end_time_has_passed=-1;
+		int index_of_free_frame = -1;
+		int index_of_page_where_end_time_has_passed = -1;
 
 		iterate_over_page_table_and_search_for_avaliable_frame(p_params, &index_of_free_frame, &index_of_page_where_end_time_has_passed);
 
@@ -148,7 +148,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 			//found a frame that can be evicted then used.
 			if (index_of_page_where_end_time_has_passed != -1) {
 
-				
+
 				// needs to be mutex protected
 				WaitForSingleObject(output_file_mutex, INFINITE);
 
@@ -179,20 +179,20 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 			//found frame that wasn't in any page
 			else {
-			// needs to be mutex protected
-			WaitForSingleObject(output_file_mutex, INFINITE);
-			// print placement line to output(time, page_index,index_of_free_frame, p)
-			write_to_output_from_offset = write_to_output(p_params->path_to_output, page_index, index_of_free_frame, time, false, write_to_output_from_offset);
+				// needs to be mutex protected
+				WaitForSingleObject(output_file_mutex, INFINITE);
+				// print placement line to output(time, page_index,index_of_free_frame, p)
+				write_to_output_from_offset = write_to_output(p_params->path_to_output, page_index, index_of_free_frame, time, false, write_to_output_from_offset);
 
-			ReleaseMutex(output_file_mutex);
+				ReleaseMutex(output_file_mutex);
 
-			
-			//update page table
-			Page new_page;
-			new_page.valid = true;
-			new_page.end_time = time + time_of_use;
-			new_page.frame_num = index_of_free_frame;
-			write_to_page_table_protected(page_table, p_params->page_table_readers_writers_parmas, page_index, new_page);
+
+				//update page table
+				Page new_page;
+				new_page.valid = true;
+				new_page.end_time = time + time_of_use;
+				new_page.frame_num = index_of_free_frame;
+				write_to_page_table_protected(page_table, p_params->page_table_readers_writers_parmas, page_index, new_page);
 
 			}
 		}
@@ -202,7 +202,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 
 	//this page already has a frame
 	else {
-		
+
 		//update end time of table if needed.
 		if (page_read.end_time < (time + time_of_use)) {
 			Page new_page;
@@ -226,7 +226,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 //if failed, will return null. this should be checked in caller and handled accordingly!
 Page* create_and_init_page_table(unsigned int num_of_pages) {
 
-	Page* page_table= calloc(num_of_pages, sizeof(Page));
+	Page* page_table = calloc(num_of_pages, sizeof(Page));
 
 
 	if (page_table == NULL) {
@@ -247,9 +247,9 @@ Page* create_and_init_page_table(unsigned int num_of_pages) {
 
 //based on reader/writers solution presented in tirgul.
 //Clock_reader_writers_params are global, and whenever a thread wants to read the clock it does it through this protected zone.
-unsigned int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, unsigned int* current_time){
+unsigned int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, unsigned int* current_time) {
 	unsigned int current_t;
-	
+
 
 	//need to add function to check failure and exit correctly
 
@@ -267,8 +267,8 @@ unsigned int read_current_time_protected(ReadersWritersParam* clock_readers_writ
 	ReleaseMutex(clock_readers_writers_parmas->mutex);
 
 	//critical section for readers
-	
-	current_t= *current_time;
+
+	current_t = *current_time;
 
 	//end ofcritical section for readers
 
@@ -290,7 +290,7 @@ unsigned int read_current_time_protected(ReadersWritersParam* clock_readers_writ
 //based on reader/writers solution presented in tirgul.
 //Clock_reader_writers_params are global, and whenever a thread wants to write to the clock it does it through this protected zone.
 void write_to_current_time_protected(int updated_time, ReadersWritersParam* clock_readers_writers_parmas, int* current_time) {
-	
+
 	WaitForSingleObject(clock_readers_writers_parmas->turn_slide_mutex, INFINITE);
 	WaitForSingleObject(clock_readers_writers_parmas->room_empty_semaphore, INFINITE);
 
@@ -300,11 +300,11 @@ void write_to_current_time_protected(int updated_time, ReadersWritersParam* cloc
 	*current_time = updated_time;
 
 	//end ofcritical section for writers
-	
+
 	ReleaseMutex(clock_readers_writers_parmas->turn_slide_mutex);
 	ReleaseSemaphore(clock_readers_writers_parmas->room_empty_semaphore, 1, NULL);
 
-	
+
 
 
 }
@@ -312,7 +312,7 @@ void write_to_current_time_protected(int updated_time, ReadersWritersParam* cloc
 
 // based on reader / writers solution presented in tirgul.
 //Page_table_reader_writers_params are global, and whenever a thread wants to read the page_table it does it through this protected zone.
-Page read_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access){
+Page read_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access) {
 	Page page_read;
 
 	//need to add function to check failure and exit correctly
@@ -374,13 +374,13 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 }
 
 //this function does not need to be read/write protected, since by here all threads but main have finished.
-void print_left_over_evictions(Page* page_table, unsigned int num_of_pages ,char* path_to_output) {
+void print_left_over_evictions(Page* page_table, unsigned int num_of_pages, char* path_to_output) {
 	unsigned int current_max = 0;
-	
+
 	for (unsigned int i = 0; i < num_of_pages; i++) {
 		if (page_table->valid == true) {
 
-			if (current_max< (page_table->end_time)) {
+			if (current_max < (page_table->end_time)) {
 
 				current_max = page_table->end_time;
 			}
@@ -392,10 +392,10 @@ void print_left_over_evictions(Page* page_table, unsigned int num_of_pages ,char
 
 	page_table = page_table - num_of_pages;
 
-	for (unsigned int i = 0; i <  num_of_pages; i++) {
-		if(page_table->valid==true)
+	for (unsigned int i = 0; i < num_of_pages; i++) {
+		if (page_table->valid == true)
 
-		write_to_output_from_offset=write_to_output(path_to_output, i, page_table->frame_num, current_max,true, write_to_output_from_offset);
+			write_to_output_from_offset = write_to_output(path_to_output, i, page_table->frame_num, current_max, true, write_to_output_from_offset);
 		page_table++;
 	}
 

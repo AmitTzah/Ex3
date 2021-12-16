@@ -38,8 +38,8 @@ typedef struct
 	int* parsed_row_array;
 	Page* page_table;
 	HANDLE semaphore;
-	ReadersWritersParam * page_table_readers_writers_parmas;
-	ReadersWritersParam * clock_readers_writers_parmas;
+	ReadersWritersParam* page_table_readers_writers_parmas;
+	ReadersWritersParam* clock_readers_writers_parmas;
 	unsigned int size_of_page_table;
 	unsigned int  num_of_frames;
 	char* path_to_output;
@@ -52,9 +52,9 @@ Page* create_and_init_page_table(unsigned int num_of_pages);
 DWORD WINAPI worker_row_thread(LPVOID lpParam);
 
 unsigned int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, unsigned int* current_time);
-void write_to_current_time_protected(int updated_time, ReadersWritersParam *clock_readers_writers_parmas, int* current_time);
+void write_to_current_time_protected(int updated_time, ReadersWritersParam* clock_readers_writers_parmas, int* current_time);
 
-Page read_page_table_protected(Page* page_table, ReadersWritersParam *page_table_readers_writers_parmas, int index_of_page_to_access);
+Page read_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access);
 void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write);
 
 void print_left_over_evictions(Page* page_table, unsigned int num_of_pages, char* path_to_output);

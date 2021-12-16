@@ -368,8 +368,8 @@ char* find_output_path(char* path_to_input_file)
 {
 	int i = 0;
 	char* path_to_output = (char*)malloc(sizeof(char) * (MAX_LENGTH_OF_PATH_TO_A_FILE + 1));
-	
-	
+
+
 	if (path_to_output == NULL)
 	{
 		printf("error alocating memory in row_to_int\n");
