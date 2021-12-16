@@ -21,12 +21,12 @@ extern HANDLE output_file_mutex;
 void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t* p_params, int* index_of_free_frame, int* index_of_page_where_end_time_has_passed) {
 	int i;
 	Page page_read;
-	size_t current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
+	unsigned int current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
 	int numebr_of_frames = p_params->num_of_frames;
 	int was_frame_found_in_page_table = 0;
 
 	for ( i = 0; i < numebr_of_frames; i++) {
-		for (size_t j = 0; j < p_params->size_of_page_table; j++) {
+		for (unsigned int j = 0; j < p_params->size_of_page_table; j++) {
 			page_read = read_page_table_protected(p_params->page_table, p_params->page_table_readers_writers_parmas, j);
 			if (page_read.valid == true && page_read.frame_num == i) {
 				if (page_read.end_time <= current_time) {
@@ -58,15 +58,15 @@ void iterate_over_page_table_and_search_for_avaliable_frame(ROW_THREAD_params_t*
 
 //All threads that are currently waiting for a frame to evict. 
 //When a frame does evict, they "race" to catch it.
-void waiting_mode(size_t time_of_use, int page_index, ROW_THREAD_params_t* p_params) {
+void waiting_mode(unsigned int time_of_use, int page_index, ROW_THREAD_params_t* p_params) {
 
 	//contastnly reading page_table to find a frame where end_time<=current_time
 	//when finds such frame, it prints evict as needed and update the page table, then print placement.
 	//should be sempahore protected as the read/write problem code.
 	while (true) {
-		for (size_t i = 0; i < p_params->size_of_page_table; i++) {
+		for (unsigned int i = 0; i < p_params->size_of_page_table; i++) {
 			Page page_read = read_page_table_protected(p_params->page_table, (p_params->page_table_readers_writers_parmas), i);
-			size_t current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
+			unsigned int current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
 
 			if ((page_read.end_time <= current_time) && page_read.valid==true) {
 
@@ -116,9 +116,9 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 	//Convert (void *) to parameters type.
 	p_params = (ROW_THREAD_params_t*)lpParam;
 
-	size_t time = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 3];
+	unsigned int time = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 3];
 	int page_index = floor((p_params->parsed_row_array[NUM_OF_ROW_VARIABLES - 2]) / SIZE_OF_PAGE);
-	size_t time_of_use = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES-1];
+	unsigned int time_of_use = p_params->parsed_row_array[NUM_OF_ROW_VARIABLES-1];
 	int* current_time = p_params->current_time;
 	HANDLE semaphore = p_params->semaphore;
 	Page* page_table=p_params->page_table;
@@ -223,17 +223,19 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 }
 
 //Creates an array of pages, allocated on heap so should be freed in caller. Each page is initialized to valid=0.
-Page* create_and_init_page_table(size_t num_of_pages) {
+//if failed, will return null. this should be checked in caller and handled accordingly!
+Page* create_and_init_page_table(unsigned int num_of_pages) {
 
 	Page* page_table= calloc(num_of_pages, sizeof(Page));
 
 
 	if (page_table == NULL) {
 		printf("Memory allocation to page_table array failed!");
-		exit(1);
+		free(page_table);
+		return NULL;
 	}
 	else {
-		for (size_t i = 0; i < num_of_pages; i++)
+		for (unsigned int i = 0; i < num_of_pages; i++)
 		{
 			page_table[i].valid = false;
 
@@ -245,8 +247,8 @@ Page* create_and_init_page_table(size_t num_of_pages) {
 
 //based on reader/writers solution presented in tirgul.
 //Clock_reader_writers_params are global, and whenever a thread wants to read the clock it does it through this protected zone.
-size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, size_t* current_time){
-	size_t current_t;
+unsigned int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, unsigned int* current_time){
+	unsigned int current_t;
 	
 
 	//need to add function to check failure and exit correctly
@@ -288,9 +290,10 @@ size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_pa
 //based on reader/writers solution presented in tirgul.
 //Clock_reader_writers_params are global, and whenever a thread wants to write to the clock it does it through this protected zone.
 void write_to_current_time_protected(int updated_time, ReadersWritersParam* clock_readers_writers_parmas, int* current_time) {
-
+	
 	WaitForSingleObject(clock_readers_writers_parmas->turn_slide_mutex, INFINITE);
 	WaitForSingleObject(clock_readers_writers_parmas->room_empty_semaphore, INFINITE);
+
 
 	//critical section for writers
 
@@ -370,11 +373,11 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 
 }
 
-
-void print_left_over_evictions(Page* page_table, size_t num_of_pages) {
-	size_t current_max = 0;
+//this function does not need to be read/write protected, since by here all threads but main have finished.
+void print_left_over_evictions(Page* page_table, unsigned int num_of_pages) {
+	unsigned int current_max = 0;
 	
-	for (int i = 0; i < num_of_pages; i++) {
+	for (unsigned int i = 0; i < num_of_pages; i++) {
 		if (page_table->valid == true) {
 
 			if (current_max< (page_table->end_time)) {

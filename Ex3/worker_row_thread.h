@@ -15,9 +15,9 @@
 
 typedef struct Pages {
 
-	size_t frame_num;
+	unsigned int frame_num;
 	bool valid;
-	size_t end_time;
+	unsigned int end_time;
 
 } Page;
 
@@ -33,29 +33,29 @@ typedef enum
 // A type for thread parameters
 typedef struct
 {
-	size_t row_index;
-	size_t* current_time;
+	unsigned int row_index;
+	unsigned int* current_time;
 	int* parsed_row_array;
 	Page* page_table;
 	HANDLE semaphore;
 	ReadersWritersParam * page_table_readers_writers_parmas;
 	ReadersWritersParam * clock_readers_writers_parmas;
-	size_t size_of_page_table;
-	size_t  num_of_frames;
+	unsigned int size_of_page_table;
+	unsigned int  num_of_frames;
 
 } ROW_THREAD_params_t;
 
 
-Page* create_and_init_page_table(size_t num_of_pages);
+Page* create_and_init_page_table(unsigned int num_of_pages);
 
 DWORD WINAPI worker_row_thread(LPVOID lpParam);
 
-size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, size_t* current_time);
+unsigned int read_current_time_protected(ReadersWritersParam* clock_readers_writers_parmas, unsigned int* current_time);
 void write_to_current_time_protected(int updated_time, ReadersWritersParam *clock_readers_writers_parmas, int* current_time);
 
 Page read_page_table_protected(Page* page_table, ReadersWritersParam *page_table_readers_writers_parmas, int index_of_page_to_access);
 void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_table_readers_writers_parmas, int index_of_page_to_access, Page new_page_to_write);
 
-void print_left_over_evictions(Page* page_table, size_t num_of_pages);
+void print_left_over_evictions(Page* page_table, unsigned int num_of_pages);
 
 #endif

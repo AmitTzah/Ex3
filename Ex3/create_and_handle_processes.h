@@ -18,11 +18,11 @@ typedef struct ReadersWritersParam {
 DWORD CreateProcessSimpleMain(LPSTR command_line_arguments_to_run, int time_out_in_ms);
 
 HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,	LPVOID p_thread_parameters, LPDWORD p_thread_id);
-void close_array_of_thread_handles(HANDLE* array_of_thread_pointers, int size_of_array);
+void close_array_of_handles(HANDLE* array_of_handles, int size_of_array);
 
 char* concatenate_command_line_arguments_into_a_string(int num_of_arguments, char* arguments_array[]);
 
-HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_objects, size_t initial_semaphore_count, size_t maximum_count);
+HANDLE* create_and_init_array_semaphore_objects(unsigned int overall_num_of_semaphore_objects, unsigned int initial_semaphore_count, unsigned int maximum_count);
 
 ReadersWritersParam create_and_init_readers_writers_param_struct(int max_num_of_readers);
 
