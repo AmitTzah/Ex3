@@ -376,14 +376,18 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 //this function does not need to be read/write protected, since by here all threads but main have finished.
 void print_left_over_evictions(Page* page_table, unsigned int num_of_pages) {
 	unsigned int current_max = 0;
+	unsigned int final_page_num = 0;
 	
 	for (unsigned int i = 0; i < num_of_pages; i++) {
 		if (page_table->valid == true) {
 
-			if (current_max< (page_table->end_time)) {
+			if (current_max<= (page_table->end_time)) {
 
 				current_max = page_table->end_time;
+				
 			}
+			if (page_table->frame_num >= final_page_num);
+				final_page_num = page_table->frame_num;
 
 		}
 
@@ -395,7 +399,7 @@ void print_left_over_evictions(Page* page_table, unsigned int num_of_pages) {
 	for (int i = 0; i <  num_of_pages; i++) {
 		if (page_table->valid == true)
 		{
-			if (page_table->end_time == current_max) // meaning this is the last row
+			if (page_table->frame_num == final_page_num) // meaning this is the last row
 			{
 				write_to_output_from_offset = write_to_output(OUTPUT_FILE_PATH, i, page_table->frame_num, current_max, true, write_to_output_from_offset, TRUE);
 			}
