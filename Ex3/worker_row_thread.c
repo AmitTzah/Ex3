@@ -11,7 +11,7 @@
 
 extern int write_to_output_from_offset;
 extern HANDLE output_file_mutex;
-
+extern HANDLE waiting_mode_mutex;
 
 
 //this function iterates over page_table in a rising index search for frames.
@@ -64,6 +64,8 @@ void waiting_mode(unsigned int time_of_use, int page_index, ROW_THREAD_params_t*
 	//when finds such frame, it prints evict as needed and update the page table, then print placement.
 	//should be sempahore protected as the read/write problem code.
 	while (true) {
+		WaitForSingleObject(waiting_mode_mutex, INFINITE);
+
 		for (unsigned int i = 0; i < p_params->size_of_page_table; i++) {
 			Page page_read = read_page_table_protected(p_params->page_table, (p_params->page_table_readers_writers_parmas), i);
 			unsigned int current_time = read_current_time_protected(p_params->clock_readers_writers_parmas, p_params->current_time);
@@ -98,6 +100,8 @@ void waiting_mode(unsigned int time_of_use, int page_index, ROW_THREAD_params_t*
 			}
 
 		}
+		ReleaseMutex(waiting_mode_mutex);
+
 	}
 }
 

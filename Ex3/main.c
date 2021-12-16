@@ -24,6 +24,7 @@ Project: Ex3
 
 int write_to_output_from_offset;
 HANDLE output_file_mutex;
+HANDLE waiting_mode_mutex;
 
 int main(int argc, char* argv[]) {
 
@@ -48,6 +49,12 @@ int main(int argc, char* argv[]) {
 	ReadersWritersParam clock_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
 	ReadersWritersParam page_table_readers_writers_parmas = create_and_init_readers_writers_param_struct(overall_num_of_threads);
 
+	waiting_mode_mutex= CreateMutex(
+		NULL,   /* default security attributes */
+		FALSE,	/* don't lock mutex immediately */
+		NULL);  /* un-named */
+
+
 	output_file_mutex = CreateMutex(
 		NULL,   /* default security attributes */
 		FALSE,	/* don't lock mutex immediately */
@@ -61,7 +68,7 @@ int main(int argc, char* argv[]) {
 	int* parsed_row_array = calloc(NUM_OF_ROW_VARIABLES, sizeof(int));
 	HANDLE* array_of_semaphore_objects = create_and_init_array_semaphore_objects(overall_num_of_threads, 0, 2);
 
-	if (array_of_thread_pointers == NULL || p_thread_ids == NULL || array_of_thread_parameters_structs == NULL
+	if (array_of_thread_pointers == NULL || p_thread_ids == NULL || array_of_thread_parameters_structs == NULL || waiting_mode_mutex==NULL
 		|| output_file_mutex == NULL || parsed_row_array == NULL || page_table == NULL || array_of_semaphore_objects == NULL) {
 
 		printf("Memory allocation failed in main!");
@@ -140,6 +147,8 @@ Main_Cleanup:
 	close_array_of_handles(array_of_thread_pointers, overall_num_of_threads);
 	close_array_of_handles(array_of_semaphore_objects, overall_num_of_threads);
 	if (output_file_mutex != NULL) CloseHandle(output_file_mutex);
+	if (output_file_mutex != NULL) CloseHandle(waiting_mode_mutex);
+
 
 	if (clock_readers_writers_parmas.mutex != NULL) CloseHandle(clock_readers_writers_parmas.mutex);
 	if (clock_readers_writers_parmas.room_empty_semaphore != NULL) CloseHandle(clock_readers_writers_parmas.room_empty_semaphore);
