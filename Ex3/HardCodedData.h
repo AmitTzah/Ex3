@@ -8,7 +8,7 @@
 #define BRUTAL_TERMINATION_CODE 0x55
 #define ERROR_CODE ((int)(-1))
 #define SUCCESS_CODE ((int)(0))
-#define MAX_LENGTH_OF_PATH_TO_A_FILE 100
+#define MAX_LENGTH_OF_PATH_TO_A_FILE 300
 
 
 
