@@ -374,10 +374,55 @@ https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
 			WinWriteToFile(pathToFile, "\r\n", 4, write_from_offset);
 			write_from_offset += 2;
 		}
+		else
+		{
+			WinWriteToFile(pathToFile, "\n", 1, write_from_offset);
+		}
 		
 
 		free(Line_To_Write);
 		return write_from_offset;
+	}
+	/*
+	the followin func recives the input file location and a buffer 
+	and puts the output file location inside the buffer
+	
+	*/
+	void find_outPut_path(char* pathToFile, int index_of_wanted_line, int* arr_to_hold_parsed_values, int arr_size)
+	{
+		int file_offset = 0;
+		char* line_buffer = (char*)malloc(sizeof(char) * (MAX_LENGTH_OF_ROW + 1));
+		int row_counter = 0;
+		file_offset = 0;
+
+		if (line_buffer == NULL)
+		{
+			printf("error alocating memory in row_to_int ");
+			exit(1);
+		}
+		while (TRUE)
+		{
+
+			file_offset += WinReadFromFile(pathToFile, line_buffer, MAX_LENGTH_OF_ROW, file_offset);
+			char* temp_char_1 = strtok(line_buffer, "\r\n");
+			for (int j = 1; j <= index_of_wanted_line; j++)
+			{
+				temp_char_1 = strtok(NULL, "\r\n");
+			}
+			// we are at wanted row
+			{
+				char* temp_char = strtok(temp_char_1, " ");
+				*arr_to_hold_parsed_values = atoi(temp_char);
+				arr_to_hold_parsed_values++;
+
+				for (int i = 1; i < arr_size; i++) {
+					temp_char = strtok(NULL, " ");
+					*arr_to_hold_parsed_values = atoi(temp_char);
+					arr_to_hold_parsed_values++;
+				}
+				break;
+			}
+		}
 	}
 
 
