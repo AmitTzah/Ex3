@@ -223,6 +223,7 @@ DWORD WINAPI worker_row_thread(LPVOID lpParam) {
 }
 
 //Creates an array of pages, allocated on heap so should be freed in caller. Each page is initialized to valid=0.
+//if failed, will return null. this should be checked in caller and handled accordingly!
 Page* create_and_init_page_table(size_t num_of_pages) {
 
 	Page* page_table= calloc(num_of_pages, sizeof(Page));
@@ -230,7 +231,8 @@ Page* create_and_init_page_table(size_t num_of_pages) {
 
 	if (page_table == NULL) {
 		printf("Memory allocation to page_table array failed!");
-		exit(1);
+		free(page_table);
+		return NULL;
 	}
 	else {
 		for (size_t i = 0; i < num_of_pages; i++)
@@ -288,9 +290,10 @@ size_t read_current_time_protected(ReadersWritersParam* clock_readers_writers_pa
 //based on reader/writers solution presented in tirgul.
 //Clock_reader_writers_params are global, and whenever a thread wants to write to the clock it does it through this protected zone.
 void write_to_current_time_protected(int updated_time, ReadersWritersParam* clock_readers_writers_parmas, int* current_time) {
-
+	
 	WaitForSingleObject(clock_readers_writers_parmas->turn_slide_mutex, INFINITE);
 	WaitForSingleObject(clock_readers_writers_parmas->room_empty_semaphore, INFINITE);
+
 
 	//critical section for writers
 
@@ -370,11 +373,11 @@ void write_to_page_table_protected(Page* page_table, ReadersWritersParam* page_t
 
 }
 
-
+//this function does not need to be read/write protected, since by here all threads but main have finished.
 void print_left_over_evictions(Page* page_table, size_t num_of_pages) {
 	size_t current_max = 0;
 	
-	for (int i = 0; i < num_of_pages; i++) {
+	for (size_t i = 0; i < num_of_pages; i++) {
 		if (page_table->valid == true) {
 
 			if (current_max< (page_table->end_time)) {
@@ -389,7 +392,7 @@ void print_left_over_evictions(Page* page_table, size_t num_of_pages) {
 
 	page_table = page_table - num_of_pages;
 
-	for (int i = 0; i <  num_of_pages; i++) {
+	for (size_t i = 0; i <  num_of_pages; i++) {
 		if(page_table->valid==true)
 
 		write_to_output_from_offset=write_to_output(OUTPUT_FILE_PATH, i, page_table->frame_num, current_max,true, write_to_output_from_offset);

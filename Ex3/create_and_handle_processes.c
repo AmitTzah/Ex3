@@ -166,12 +166,12 @@ char * concatenate_command_line_arguments_into_a_string (int num_of_arguments, c
 
 /// <summary>
 /// 
-/// </A function to create a thread, handle should be closed in caller with CloseHandle() function.>
+/// </A function to create a thread, handle should be closed in caller with CloseHandle() function..>
 /// <param name="p_start_routine"></The routine of the thread, a function defined as: DWORD WINAPI p_start_routine(LPVOID lpParam){...}>
 /// <param name="p_thread_parameters"></a pointer to parameter to be passed to start_routine. Usually a struct.>
 /// <param name="p_thread_id"></A pointer to DWORD thread_id, this is an out parameter.>
 /// <returns></returns>
-
+//If fails, returns NULL. This should be check and handled in caller!
 HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,LPVOID p_thread_parameters, LPDWORD p_thread_id){
 
 
@@ -179,16 +179,16 @@ HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,LPVOID p_thread
 
 	if (NULL == p_start_routine)
 	{
-		printf("Error when creating a thread");
-		printf("Received null pointer");
-		exit(ERROR_CODE);
+		printf("Error when creating a thread\n");
+		printf("Received null pointer\n");
+		return NULL;
 	}
 
 	if (NULL == p_thread_id)
 	{
-		printf("Error when creating a thread");
-		printf("Received null pointer");
-		exit(ERROR_CODE);
+		printf("Error when creating a thread\n");
+		printf("Received null pointer\n");
+		return NULL;
 	}
 
 	thread_handle = CreateThread(
@@ -205,25 +205,26 @@ HANDLE CreateThreadSimple(LPTHREAD_START_ROUTINE p_start_routine,LPVOID p_thread
 		const int error = GetLastError();
 		printf("Thread Creation Failed!\n");
 
-		printf("Error code %d", error);
-		exit(1);
+		printf("Error code %d\n", error);
+		return thread_handle;
 
 	}
 
 	return thread_handle;
 }
 
-//this functions gets an array of threads and closes all handles.
-void close_array_of_thread_handles(HANDLE* array_of_thread_pointers, int size_of_array) {
+//this functions gets an array of handles and closes all handles.
+void close_array_of_handles(HANDLE* array_of_handles, int size_of_array) {
 	
 	int ret_val;
 
 	for (int j = 0; j < size_of_array; j++) {
 
-		ret_val = CloseHandle(array_of_thread_pointers[j]);
+		ret_val = CloseHandle(array_of_handles[j]);
 		if (FALSE == ret_val)
 		{
-			printf("Error when closing a thread\n");
+			const int error = GetLastError();
+			printf("Error when closing a handle, error code: %d\n", error);
 			exit(1);
 		}
 
@@ -232,10 +233,20 @@ void close_array_of_thread_handles(HANDLE* array_of_thread_pointers, int size_of
 
 }
 
+//if failes, returns NULL, this should be checked and handled in caller!
 HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_objects, size_t initial_semaphore_count, size_t maximum_count) {
 	HANDLE* semaphore_array;
 	HANDLE semaphore_object;
 	semaphore_array = calloc(overall_num_of_semaphore_objects, sizeof(HANDLE));
+
+
+	if (semaphore_array == NULL)
+	{
+		printf("Memory allocation of semphore_array failed!\n");
+		free(semaphore_array);
+		return NULL;
+	}
+
 
 	for (size_t i = 0; i < overall_num_of_semaphore_objects; i++) {
 
@@ -245,10 +256,11 @@ HANDLE* create_and_init_array_semaphore_objects(size_t overall_num_of_semaphore_
 			 maximum_count,		/* Maximum Count */
 			NULL);  /* un-named */
 
-		if (semaphore_object == NULL || semaphore_array==NULL)
+		if (semaphore_object == NULL)
 		{
-			//call cleanup_and_exit_function
-			exit(1);
+			printf("Failed to create semaphore!\n");
+			free(semaphore_array);
+			return NULL;
 		}
 
 		else {
@@ -271,32 +283,26 @@ ReadersWritersParam create_and_init_readers_writers_param_struct(int max_num_of_
 		NULL,   /* default security attributes */
 		FALSE,	/* don't lock mutex immediately */
 		NULL);  /* un-named */
-	if (params.mutex == NULL)
-	{
-		//call clean_up_function
-	}
+
 	params.room_empty_semaphore = CreateSemaphore(
 		NULL,	/* Default security attributes */
 		1,		/* Initial Count - all slots are empty */
 		max_num_of_readers,		/* Maximum Count */
 		NULL);  /* un-named */
 
-	if (params.room_empty_semaphore == NULL)
-	{
-		//call cleanup_and_exit_function
-	}
 
 	params.turn_slide_mutex = CreateMutex(
 		NULL,   /* default security attributes */
 		FALSE,	/* don't lock mutex immediately */
 		NULL);  /* un-named */
-	if (params.turn_slide_mutex == NULL)
+
+
+	if (params.room_empty_semaphore == NULL || params.turn_slide_mutex==NULL || params.mutex==NULL)
 	{
-		//call clean_up_function
-
-
+		printf("failed to init readers_writers_param struct, exiting!\n");
+		
+		exit(1);
 	}
-
 
 	return params;
 
